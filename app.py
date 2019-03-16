@@ -8,6 +8,7 @@ from nameparser.parser import HumanName
 
 nltk.download("maxent_ne_chunker")
 nltk.download("words")
+nltk.download("wordnet")
 
 
 def fetch():
@@ -50,16 +51,18 @@ def get_nouns(text):
     return Counter(nouns)
 
 
-def get_human_names(text):
+def get_proper_names(text):
     print("collecting proper names...")
 
     sentt = nltk.ne_chunk(text, binary=False)
     person_list = []
     person = []
     name = ""
+    print("checking names against a dictionary...")
     for subtree in sentt.subtrees(filter=lambda t: t.label() == "PERSON"):
         for leaf in subtree.leaves():
-            person.append(leaf[0])
+            if not nltk.corpus.wordnet.synsets(leaf[0]):
+                person.append(leaf[0])
         #if len(person) > 1:  # avoid grabbing lone surnames
         for part in person:
             name += part + " "
@@ -76,5 +79,5 @@ if __name__ == "__main__":
     tagged = nltk.pos_tag(nltk.word_tokenize(abstracts))
     nouns = get_nouns(tagged)
     pprint(nouns.most_common(20))
-    human_names = get_human_names(tagged)
-    pprint(human_names.most_common(20))
+    proper_names = get_proper_names(tagged)
+    pprint(proper_names.most_common(20))
