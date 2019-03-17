@@ -46,11 +46,12 @@ def get_proper_names(text):
         for leaf in subtree.leaves():
             if not nltk.corpus.wordnet.synsets(leaf[0]):
                 person.append(leaf[0])
-        for part in person:
-            name += part + " "
-        if name[:-1]:
-            person_list.append(name[:-1])
-        name = ""
+        if len(person) > 1:
+            for part in person:
+                name += part + " "
+            if name[:-1]:
+                person_list.append(name[:-1])
+            name = ""
         person = []
 
     counter = Counter(person_list).most_common(100)
