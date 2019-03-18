@@ -1,6 +1,8 @@
 import parse
+import json
 import requests
 import nltk
+from time import sleep
 from bs4 import BeautifulSoup
 from pprint import pprint
 from collections import Counter
@@ -11,26 +13,27 @@ nltk.download("wordnet")
 nltk.download("stopwords")
 
 
-def fetch():
+def fetch(issns):
     base_url = "https://doaj.org/api/v1/search/articles/issn%3A"
-    issns = ["1715-720X", "0003-9438", "0008-7629", "0011-393X"]
     pagesize = "?pageSize=100"
-    abstracts = []
+    abstracts = {}
 
-    for issn in issns:
-        print("fetching data for..." + issn)
+    for idx, issn in enumerate(issns):
         data = requests.get(base_url + issn + pagesize)
+        print("fetching data for " + issn + ". " + str(idx + 1) + "/" + str(len(issns)) + '. status: ' + str(data.status_code))
         articles = data.json().get("results")
 
         nex = data.json().get("next")
 
         while nex:
             data = requests.get(nex).json()
+            print(data.status_code)
+            sleep(2)
             new_articles = data.get("results")
-            articles = articles + new_articles
+            if articles and new_articles:
+                articles = articles + new_articles
             nex = data.get("next")
 
-        print("removing html tags...")
         cat_abstracts = ""
         for article in articles:
             try:
@@ -39,16 +42,19 @@ def fetch():
                 cat_abstracts = cat_abstracts + abstract
             except KeyError:
                 pass
-        abstracts.append(cat_abstracts)
+        abstracts[issn] = cat_abstracts
 
     return abstracts
 
 
 if __name__ == "__main__":
-    abstracts = fetch()
-    print("parsing parts of speech...")
-    print(abstracts)
+    with open('issnlist.txt') as issnfile:
+        issns = json.loads(issnfile.read())
+
+    abstracts = fetch(issns[:100])
     print(len(abstracts))
+    with open('abstractlist.txt', 'w') as abstractfile:
+        abstractfile.write(json.dumps(abstracts))
 
     """
     tagged = nltk.pos_tag(nltk.word_tokenize(abstracts))
