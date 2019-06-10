@@ -1,18 +1,13 @@
 [[source]]
-name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-
-[dev-packages]
-black = "*"
+name = "pypi"
 
 [packages]
-requests = "*"
-"beautifulsoup4" = "*"
-lxml = "*"
+spacy = "*"
 nltk = "*"
-numpy = "*"
-nameparser = "*"
+
+[dev-packages]
 
 [requires]
 python_version = "3.6"
