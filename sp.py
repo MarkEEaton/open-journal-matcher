@@ -8,12 +8,10 @@ nlp = spacy.load('en_core_web_lg')
 with open('abstractlist.txt') as ab:
     data = json.loads(ab.read())
 
-tokenized = []
-
 print('looping')
-for key in list(data)[2:4]:
+for key in list(data):
     print('processing: ' + str(key))
-    tokenized.append(nlp(data[key][:99999]))
-
-print(tokenized[0].similarity(tokenized[1]))
+    with open('docs/{}'.format(key), 'wb') as outfile:
+        n_data = nlp(data[key][:99999])
+        outfile.write(n_data.to_bytes())
 
