@@ -1,17 +1,17 @@
 import json
 import spacy
-
+from pathlib import Path
 
 nlp = spacy.load('en_core_web_lg')
 
+pathlist = Path('abstracts/').glob("*.txt")
+for path in pathlist:
+    with open(str(path)) as ab:
+        data = json.loads(ab.read())
 
-with open('abstractlist.txt') as ab:
-    data = json.loads(ab.read())
-
-print('looping')
-for key in list(data):
-    print('processing: ' + str(key))
-    with open('docs/{}'.format(key), 'wb') as outfile:
-        n_data = nlp(data[key][:99999])
+    print('processing: ' + str(path))
+    outpath = str(path)[10:19]
+    with open('docs/{}'.format(outpath), 'wb') as outfile:
+        n_data = nlp(data[:99999])
         outfile.write(n_data.to_bytes())
 

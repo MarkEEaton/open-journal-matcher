@@ -1,13 +1,13 @@
 [[source]]
+name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-name = "pypi"
-
-[packages]
-spacy = "*"
-nltk = "*"
 
 [dev-packages]
 
+[packages]
+spacy = "*"
+blis = "==0.2.4"
+
 [requires]
-python_version = "3.6"
+python_version = "3.7"
