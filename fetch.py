@@ -1,3 +1,5 @@
+""" loop through the issns, gather abstracts and wite to abstracts/ """
+
 import json
 import requests
 from time import sleep
@@ -9,7 +11,16 @@ def fetch(issn):
     pagesize = "?pageSize=100"
 
     data = requests.get(base_url + issn + pagesize)
-    print("fetching data for " + issn + ". " + str(idx + 1) + "/" + str(len(issns)) + '. status: ' + str(data.status_code))
+    print(
+        "fetching data for "
+        + issn
+        + ". "
+        + str(idx + 1)
+        + "/"
+        + str(len(issns))
+        + ". status: "
+        + str(data.status_code)
+    )
     articles = data.json().get("results")
 
     nex = data.json().get("next")
@@ -34,10 +45,10 @@ def fetch(issn):
 
 
 if __name__ == "__main__":
-    with open('issnlist.txt') as issnfile:
+    with open("issnlist.txt") as issnfile:
         issns = json.loads(issnfile.read())
 
     for idx, issn in enumerate(issns):
         abstracts = fetch(issn)
-        with open("abstracts/" + issn + '.txt', 'w') as abstractfile:
+        with open("abstracts/" + issn + ".txt", "w") as abstractfile:
             abstractfile.write(json.dumps(abstracts))

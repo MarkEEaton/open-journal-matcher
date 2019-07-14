@@ -1,3 +1,5 @@
+""" extract issns from journallist.csv """
+
 import csv
 import json
 
