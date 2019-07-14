@@ -10,6 +10,7 @@ black = "*"
 spacy = "*"
 blis = "==0.2.4"
 flask = "*"
+wtforms = "*"
 
 [requires]
 python_version = "3.7"

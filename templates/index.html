@@ -7,5 +7,8 @@
     </head>
     <body>
         <h1>Open Source Journal Matcher</h1>
+        <form action="{{ url_for('index') }}" method="POST">
+            <input type="text" name="abstract" />
+        </form>
     </body>
 </html>
