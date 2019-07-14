@@ -4,10 +4,12 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+black = "*"
 
 [packages]
 spacy = "*"
 blis = "==0.2.4"
+flask = "*"
 
 [requires]
 python_version = "3.7"
