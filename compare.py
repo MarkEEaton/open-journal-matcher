@@ -42,11 +42,9 @@ def index():
             title = journal_json["results"][0]["bibjson"]["title"]
             issn = item[0]
             score = item[1]
-            data = [title, issn, score]
-        return render_template("index.html", data=data)
+        return render_template("index.html", title=title, issn=issn, score=score)
 
     elif request.method == "POST" and not form.validate():
-        print(form.errors)
         return render_template("index.html", error_message=form.errors['abstract'][0]) 
 
     else:
