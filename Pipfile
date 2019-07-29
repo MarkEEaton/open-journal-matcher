@@ -11,6 +11,8 @@ spacy = "*"
 blis = "==0.2.4"
 flask = "*"
 wtforms = "*"
+"beautifulsoup4" = "*"
+lxml = "*"
 
 [requires]
 python_version = "3.7"

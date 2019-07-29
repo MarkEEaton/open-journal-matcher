@@ -1,5 +1,4 @@
 """ loop through the issns, gather abstracts and wite to abstracts/ """
-
 import json
 import requests
 from time import sleep
@@ -21,19 +20,22 @@ def fetch(issn):
         + ". status: "
         + str(data.status_code)
     )
-    articles = data.json().get("results")
+    try:
+        articles = data.json().get("results")
+    except:
+        articles = ""
+    status = str(data.status_code)
+    if status == "429":
+        sleep(10)
+        print("forbidden")
+        forbidden = True
+        articles = fetch(issn, forbidden)
+    return articles
 
-    nex = data.json().get("next")
 
-    while nex:
-        data = requests.get(nex).json()
-        sleep(2)
-        new_articles = data.get("results")
-        if articles and new_articles:
-            articles = articles + new_articles
-        nex = data.get("next")
-
+def parse(articles):
     abstracts = ""
+    print('Number of articles: ' + str(len(articles)))
     for article in articles:
         try:
             abstract = article["bibjson"]["abstract"]
@@ -49,6 +51,7 @@ if __name__ == "__main__":
         issns = json.loads(issnfile.read())
 
     for idx, issn in enumerate(issns):
-        abstracts = fetch(issn)
+        articles = fetch(issn)
+        abstracts = parse(articles)
         with open("abstracts/" + issn + ".txt", "w") as abstractfile:
             abstractfile.write(json.dumps(abstracts))
