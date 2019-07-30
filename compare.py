@@ -24,16 +24,20 @@ def index():
     if request.method == "POST" and form.validate():
 
         abs_data = nlp(form.abstract.data)
+        counter = 0
 
         for item in glob.glob("docs/*"):
-            print(item)
+            counter += 1
+            print(item, counter)
             with open(item, "rb") as item_data:
                 data = Doc(nlp.vocab).from_bytes(item_data.read())
                 print(abs_data.similarity(data))
                 comp[item[5:]] = abs_data.similarity(data)
 
+        print("sorting")
         top = sorted(comp.items(), key=lambda x: x[1], reverse=True)[:5]
 
+        print("get journal info from API")
         for item in top:
             journal_data = requests.get(
                 "https://doaj.org/api/v1/search/journals/issn%3A" + item[0]
@@ -42,6 +46,7 @@ def index():
             title = journal_json["results"][0]["bibjson"]["title"]
             issn = item[0]
             score = item[1]
+            print(issn, title)
         return render_template("index.html", title=title, issn=issn, score=score)
 
     elif request.method == "POST" and not form.validate():
