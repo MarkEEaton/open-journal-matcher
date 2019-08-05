@@ -13,6 +13,7 @@ flask = "*"
 wtforms = "*"
 "beautifulsoup4" = "*"
 lxml = "*"
+trio = "*"
 
 [requires]
 python_version = "3.7"
