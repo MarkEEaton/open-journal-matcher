@@ -1,5 +1,4 @@
-""" run the comparisons in a flask app """
-""" non async runs at 7.3 to 7.5 with [:20] """
+""" run the comparisons using trio (async) """
 
 import spacy
 import trio
@@ -19,20 +18,23 @@ counter = 0
 
 t0 = datetime.now()
 
+
 async def parent(counter):
-    print('running parent')
+    print("running parent")
     async with trio.open_nursery() as nursery:
         for item in glob.glob("docs/*")[:80]:
             counter += 1
             nursery.start_soon(fileio, item)
             print(item, counter)
-    
+
+
 async def fileio(item):
     print("opening file")
     with open(item, "rb") as item_data:
         data = Doc(nlp.vocab).from_bytes(item_data.read())
         print(abs_data.similarity(data))
         comp[item[5:]] = abs_data.similarity(data)
+
 
 trio.run(parent, counter)
 

@@ -1,5 +1,4 @@
-""" run the comparisons in a flask app """
-""" non async runs at 7.3 to 7.5 with [:20] """
+""" run the comparisons using multiprocessing """
 
 import spacy
 import trio
@@ -20,11 +19,13 @@ counter = 0
 
 t0 = datetime.now()
 
+
 def fio(item):
     with open(item, "rb") as item_data:
         data = Doc(nlp.vocab).from_bytes(item_data.read())
         print(abs_data.similarity(data))
         return (abs_data.similarity(data), item[5:])
+
 
 pool = multiprocessing.Pool(4)
 

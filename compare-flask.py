@@ -13,8 +13,18 @@ comp = {}
 
 app = Flask(__name__)
 
+
 class RegistrationForm(Form):
-    abstract = StringField('abstract', [validators.length(min=25, max=10000, message="Your abstract must be between 25 and 10000 characters.")])
+    abstract = StringField(
+        "abstract",
+        [
+            validators.length(
+                min=25,
+                max=10000,
+                message="Your abstract must be between 25 and 10000 characters.",
+            )
+        ],
+    )
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -50,10 +60,11 @@ def index():
         return render_template("index.html", title=title, issn=issn, score=score)
 
     elif request.method == "POST" and not form.validate():
-        return render_template("index.html", error_message=form.errors['abstract'][0]) 
+        return render_template("index.html", error_message=form.errors["abstract"][0])
 
     else:
         return render_template("index.html")
+
 
 if __name__ == "__main__":
     app.run(port=8000, host="127.0.0.1", debug=True)
