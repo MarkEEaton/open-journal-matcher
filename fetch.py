@@ -28,8 +28,7 @@ def fetch(issn):
     if status == "429":
         sleep(10)
         print("forbidden")
-        forbidden = True
-        articles = fetch(issn, forbidden)
+        articles = fetch(issn)
     return articles
 
 
