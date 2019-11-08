@@ -5,7 +5,6 @@ import trio
 import glob
 import collections
 import requests
-import multiprocessing
 from spacy.tokens import Doc
 from datetime import datetime
 
@@ -16,6 +15,7 @@ comp = {}
 inp = input("Abstract: ")
 abs_data = nlp(inp)
 counter = 0
+result = []
 
 t0 = datetime.now()
 
@@ -27,12 +27,9 @@ def fio(item):
         return (abs_data.similarity(data), item[-9:])
 
 
-pool = multiprocessing.Pool(4)
-
 gl = list(glob.glob("/media/mark/Seagate Backup Plus Drive/vectors-sm/*"))
-result = pool.map(fio, gl)
-pool.close()
-pool.join()
+for item in gl:
+    result.append(fio(item))
 
 print("sorting")
 top = sorted(result, key=lambda x: x[1], reverse=True)[:5]
