@@ -1,15 +1,13 @@
-""" run the comparisons using multiprocessing """
+""" run the comparisons using the most basic approach """
 
 import spacy
-import trio
 import glob
-import collections
 import requests
 from spacy.tokens import Doc
 from datetime import datetime
 
 
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_md")
 comp = {}
 
 inp = input("Abstract: ")
@@ -27,7 +25,7 @@ def fio(item):
         return (abs_data.similarity(data), item[-9:])
 
 
-gl = list(glob.glob("/media/mark/Seagate Backup Plus Drive/vectors-sm/*"))
+gl = list(glob.glob("docs/*"))
 for item in gl:
     result.append(fio(item))
 

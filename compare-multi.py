@@ -1,16 +1,14 @@
 """ run the comparisons using multiprocessing """
 
 import spacy
-import trio
 import glob
-import collections
 import requests
 import multiprocessing
 from spacy.tokens import Doc
 from datetime import datetime
 
 
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_md")
 comp = {}
 
 inp = input("Abstract: ")
@@ -29,7 +27,7 @@ def fio(item):
 
 pool = multiprocessing.Pool(4)
 
-gl = list(glob.glob("/media/mark/Seagate Backup Plus Drive/vectors-sm/*"))
+gl = list(glob.glob("docs/*"))
 result = pool.map(fio, gl)
 pool.close()
 pool.join()

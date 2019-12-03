@@ -22,7 +22,7 @@ t0 = datetime.now()
 async def parent(counter):
     print("running parent")
     async with trio.open_nursery() as nursery:
-        for item in glob.glob("docs/*")[:80]:
+        for item in glob.glob("docs/*"):
             counter += 1
             nursery.start_soon(fileio, item)
             print(item, counter)
