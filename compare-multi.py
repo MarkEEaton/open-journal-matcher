@@ -25,9 +25,9 @@ def fio(item):
         return (abs_data.similarity(data), item[-9:])
 
 
-pool = multiprocessing.Pool(4)
+pool = multiprocessing.Pool(16)
 
-gl = list(glob.glob("docs/*"))
+gl = list(glob.glob("docs-dummy-py/*"))
 result = pool.map(fio, gl)
 pool.close()
 pool.join()
@@ -44,7 +44,10 @@ for item in top:
     score = item[0]
     if journal_data.status_code == 200:
         journal_json = journal_data.json()
-        title = journal_json["results"][0]["bibjson"]["title"]
+        try:
+            title = journal_json["results"][0]["bibjson"]["title"]
+        except:
+            title = " "
         print(issn, title, score)
     else:
         print(issn, score)
