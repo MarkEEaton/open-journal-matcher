@@ -27,13 +27,13 @@ def fio(item):
 
 pool = multiprocessing.Pool(16)
 
-gl = list(glob.glob("docs-dummy-py/*"))
+gl = list(glob.glob("docs-md/*"))
 result = pool.map(fio, gl)
 pool.close()
 pool.join()
 
 print("sorting")
-top = sorted(result, key=lambda x: x[1], reverse=True)[:5]
+top = sorted(result, key=lambda x: x[0], reverse=True)[:5]
 
 print("get journal info from API")
 for item in top:
