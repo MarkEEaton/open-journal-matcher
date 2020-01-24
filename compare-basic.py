@@ -25,12 +25,12 @@ def fio(item):
         return (abs_data.similarity(data), item[-9:])
 
 
-gl = list(glob.glob("docs/*"))
+gl = list(glob.glob("docs-md/*"))
 for item in gl:
     result.append(fio(item))
 
 print("sorting")
-top = sorted(result, key=lambda x: x[1], reverse=True)[:5]
+top = sorted(result, key=lambda x: x[0], reverse=True)[:5]
 
 print("get journal info from API")
 for item in top:
@@ -41,7 +41,10 @@ for item in top:
     score = item[0]
     if journal_data.status_code == 200:
         journal_json = journal_data.json()
-        title = journal_json["results"][0]["bibjson"]["title"]
+        try:
+            title = journal_json["results"][0]["bibjson"]["title"]
+        except:
+            title = " "
         print(issn, title, score)
     else:
         print(issn, score)

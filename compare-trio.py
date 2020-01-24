@@ -22,7 +22,7 @@ t0 = datetime.now()
 async def parent(counter):
     print("running parent")
     async with trio.open_nursery() as nursery:
-        for item in glob.glob("docs/*"):
+        for item in glob.glob("docs-md/*"):
             counter += 1
             nursery.start_soon(fileio, item)
             print(item, counter)
@@ -33,7 +33,7 @@ async def fileio(item):
     with open(item, "rb") as item_data:
         data = Doc(nlp.vocab).from_bytes(item_data.read())
         print(abs_data.similarity(data))
-        comp[item[5:]] = abs_data.similarity(data)
+        comp[item[8:]] = abs_data.similarity(data)
 
 
 trio.run(parent, counter)
@@ -47,7 +47,10 @@ for item in top:
         "https://doaj.org/api/v1/search/journals/issn%3A" + item[0]
     )
     journal_json = journal_data.json()
-    title = journal_json["results"][0]["bibjson"]["title"]
+    try:
+        title = journal_json["results"][0]["bibjson"]["title"]
+    except:
+        title = " "
     issn = item[0]
     score = item[1]
     print(issn, title)
