@@ -1,13 +1,11 @@
 """ run the comparisons using trio (async) """
 
 import spacy
-import json
 import trio
 import glob
-import collections
 import requests
+import base64
 import settings
-from spacy.tokens import Doc
 from datetime import datetime
 
 
@@ -24,18 +22,16 @@ t0 = datetime.now()
 async def parent(counter, abs_data):
     print("running parent")
     async with trio.open_nursery() as nursery:
-        for item in glob.glob("docs-md/*")[:3]:
+        for item in glob.glob("docs-md/*")[:30]:
             counter += 1
             nursery.start_soon(fileio, item, abs_data)
-            print(item, counter)
 
 
 async def fileio(item, abs_data):
     with open(item, "rb") as i:
-        resp = requests.post(settings.cloud_function, data={"d": [[abs_data]], "e": str(i.read())})
-    data = spacy.tokens.Doc(nlp.vocab).from_bytes(resp.text)
-    print(nlp("test this out").similarity(data))
+        resp = requests.post(settings.cloud_function, data={"d": [[abs_data]], "e": base64.b64encode(i.read())})
     #comp[item[8:]] = score
+    print(resp.text)
 
 
 trio.run(parent, counter, abs_data)
