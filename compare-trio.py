@@ -29,8 +29,11 @@ async def parent(counter, abs_data):
 
 async def fileio(item, abs_data):
     with open(item, "rb") as i:
-        resp = requests.post(settings.cloud_function, data={"d": [[abs_data]], "e": base64.b64encode(i.read())})
-    #comp[item[8:]] = score
+        resp = requests.post(
+            settings.cloud_function,
+            data={"d": [[abs_data]], "e": base64.b64encode(i.read())},
+        )
+    # comp[item[8:]] = score
     print(resp.text)
 
 
