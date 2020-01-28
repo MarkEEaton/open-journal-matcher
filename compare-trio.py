@@ -1,5 +1,8 @@
 """ run the comparisons using trio (async) """
 
+import json
+import asks
+import multio
 import trio
 import glob
 import requests
@@ -10,33 +13,40 @@ from datetime import datetime
 comp = {}
 inp = input("Abstract: ")
 counter = 0
-
 t0 = datetime.now()
 
 
 async def parent(counter, inp):
     print("running parent")
     async with trio.open_nursery() as nursery:
-        for item in glob.glob("docs-md/*")[:30]:
+        for item in glob.glob("docs-small-file-size/*")[:60]:
             counter += 1
             nursery.start_soon(fileio, item, inp)
 
 
 async def fileio(item, inp):
-    with open(item, "rb") as i:
-        resp = requests.post(
-            settings.cloud_function,
-            data={"d": [inp], "e": base64.b64encode(i.read())},
+    async with await trio.open_file(item, encoding="latin-1", mode="r") as i:
+        print("open context")
+        data = await i.read()
+        print("data read")
+        data = json.dumps({"d": inp, "e": data})
+    resp = await asks.put(
+        settings.cloud_function, 
+        data=data,
         )
-    comp[item[8:]] = resp.text 
+    print("request sent")
+    comp[item[21:]] = resp.text 
     print(resp.text)
     return
 
 
+multio.init("trio")
 trio.run(parent, counter, inp)
 
 print("sorting")
-top = sorted(comp.items(), key=lambda x: x[1], reverse=True)[:5]
+to_sort = [(k, v) for k, v in comp.items() if 'Error' not in v]
+top = sorted(to_sort, key=lambda x: x[1], reverse=True)[:5]
+print(top)
 
 print("get journal info from API")
 for item in top:
