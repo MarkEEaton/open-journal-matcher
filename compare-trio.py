@@ -43,8 +43,14 @@ async def fileio(item, inp):
 multio.init("trio")
 trio.run(parent, counter, inp)
 
+def test_response(resp):
+    try:
+        return float(resp)  # will evaluate as false if float == 0.0
+    except ValueError:
+        return False
+
 print("sorting")
-to_sort = [(k, v) for k, v in comp.items() if 'Error' not in v]
+to_sort = [(k, v) for k, v in comp.items() if test_response(v)]
 top = sorted(to_sort, key=lambda x: x[1], reverse=True)[:5]
 print(top)
 
