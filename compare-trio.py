@@ -1,6 +1,5 @@
 """ run the comparisons using trio (async) """
 
-import json
 import asks
 import multio
 import trio
@@ -19,23 +18,18 @@ t0 = datetime.now()
 async def parent(counter, inp):
     print("running parent")
     async with trio.open_nursery() as nursery:
-        for item in glob.glob("docs-small-file-size/*")[:60]:
+        for item in glob.glob("abstracts-sample/*"):
             counter += 1
             nursery.start_soon(fileio, item, inp)
 
 
 async def fileio(item, inp):
-    async with await trio.open_file(item, encoding="latin-1", mode="r") as i:
-        print("open context")
-        data = await i.read()
-        print("data read")
-        data = json.dumps({"d": inp, "e": data})
-    resp = await asks.put(
+    async with await trio.open_file(item, mode="r") as i:
+        raw_data = await i.read()
+    resp = await asks.post(
         settings.cloud_function, 
-        data=data,
-        )
-    print("request sent")
-    comp[item[21:]] = resp.text 
+        json={"d": inp, "e": raw_data})
+    comp[item[17:]] = resp.text 
     print(resp.text)
     return
 
