@@ -7,6 +7,7 @@ import settings
 from datetime import datetime
 
 comp = {}
+scores = {}
 inp = input("Abstract: ")
 counter = 0
 t0 = datetime.now()
@@ -40,18 +41,15 @@ def test_response(resp):
 
 
 async def tabulate(data):
-    print("sorting")
     to_sort = [(k, v) for k, v in comp.items() if test_response(v)]
     top = sorted(to_sort, key=lambda x: x[1], reverse=True)[:5]
-    print(top)
 
-    print("get journal info from API")
     async with trio.open_nursery() as nursery:
-        for item in top:
-            nursery.start_soon(titles, item)
+        for idx, item in enumerate(top):
+            nursery.start_soon(titles, idx, item)
 
 
-async def titles(item):
+async def titles(idx, item):
     journal_data = await asks.get(
         "https://doaj.org/api/v1/search/journals/issn%3A" + item[0]
     )
@@ -59,12 +57,15 @@ async def titles(item):
     try:
         title = journal_json["results"][0]["bibjson"]["title"]
     except:
-        title = " "
+        title = "[title not found... look up by ISSN]"
+    rank = idx + 1
     issn = item[0]
     score = item[1]
-    print(issn, title)
+    scores[rank] = (issn, title, score)
+    return
 
 
 trio.run(tabulate, comp)
+print(scores)
 t1 = datetime.now()
 print(t1 - t0)
