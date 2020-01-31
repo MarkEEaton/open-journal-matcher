@@ -1,7 +1,6 @@
 """ run the comparisons using trio (async) """
 
 import asks
-import multio
 import trio
 import glob
 import requests
@@ -34,7 +33,6 @@ async def fileio(item, inp):
     return
 
 
-multio.init("trio")
 trio.run(parent, counter, inp)
 
 def test_response(resp):
