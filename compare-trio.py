@@ -2,8 +2,8 @@
 
 import asks
 import trio
-import glob
 import settings
+from glob import glob
 from datetime import datetime
 
 comp = {}
@@ -16,15 +16,20 @@ t0 = datetime.now()
 async def parent(counter, inp):
     print("running parent")
     async with trio.open_nursery() as nursery:
-        for item in glob.glob("abstracts/*"):
+        for item in glob("abstracts/*"):
             counter += 1
             nursery.start_soon(fileio, item, inp)
 
 
 async def fileio(item, inp):
+    status = 0
+    max_out = 0
     async with await trio.open_file(item, mode="r") as i:
         raw_data = await i.read()
-    resp = await asks.post(settings.cloud_function, json={"d": inp, "e": raw_data})
+    while (status != 200) and (max_out <= 10):
+        resp = await asks.post(settings.cloud_function, json={"d": inp, "e": raw_data})
+        status = resp.status_code
+        max_out += 1
     comp[item[10:19]] = resp.text
     print(resp.text)
     return
