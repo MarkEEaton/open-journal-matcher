@@ -25,13 +25,16 @@ async def fileio(item, inp):
     status = 0
     max_out = 0
     async with await trio.open_file(item, mode="r") as i:
+        # don't use binary here because plain text is easier to send over the wire
         raw_data = await i.read()
     while (status != 200) and (max_out <= 10):
         resp = await asks.post(settings.cloud_function, json={"d": inp, "e": raw_data})
         status = resp.status_code
+        if status == 503:
+            # truncate the data if there is a memory error
+            raw_data = raw_data[:100000]
         max_out += 1
     comp[item[10:19]] = resp.text
-    print(resp.text)
     return
 
 
@@ -47,6 +50,7 @@ def test_response(resp):
 
 async def tabulate(data):
     to_sort = [(k, v) for k, v in comp.items() if test_response(v)]
+    print("Journals checked:" + str(len(to_sort)))
     top = sorted(to_sort, key=lambda x: x[1], reverse=True)[:5]
 
     async with trio.open_nursery() as nursery:
