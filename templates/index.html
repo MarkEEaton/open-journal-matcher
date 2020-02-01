@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Open Source Journal Matcher</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    </head>
+    <body>
+        <h1>Open Source Journal Matcher</h1>
+        <form id=form action="{{ url_for('index') }}" method="POST">
+            <input type="text" name="abstract" />
+        </form>
+        <div id=errors>{{ error_message }}</div>
+        <div id=data style="display:none;">The best match is:<br/>
+            <strong>{{ title }}</strong> (issn: {{ issn }}), with a relevancy score of: <strong>{{ score }}</strong>.
+        </div>
+    </body>
+</html>
