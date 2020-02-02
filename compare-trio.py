@@ -3,6 +3,7 @@
 import asks
 import trio
 import settings
+from google.cloud import storage
 from glob import glob
 from datetime import datetime
 
@@ -13,18 +14,22 @@ counter = 0
 t0 = datetime.now()
 
 
+
 async def parent(counter, inp):
     print("running parent")
+    storage_client = storage.Client()
+    blobs = storage_client.list_blobs(settings.bucket_name)
     async with trio.open_nursery() as nursery:
-        for item in glob("abstracts/*"):
+        for blob in blobs:
             counter += 1
-            nursery.start_soon(fileio, item, inp)
+            nursery.start_soon(fileio, blob, inp)
 
 
-async def fileio(item, inp):
+async def fileio(blob, inp):
     status = 0
     max_out = 0
-    async with await trio.open_file(item, mode="r") as i:
+    blob.download_to_filename(blob.name)
+    async with await trio.open_file(blob.name, mode="r") as i:
         # don't use binary here because plain text is easier to send over the wire
         raw_data = await i.read()
     while (status != 200) and (max_out <= 10):
@@ -34,7 +39,8 @@ async def fileio(item, inp):
             # truncate the data if there is a memory error
             raw_data = raw_data[:100000]
         max_out += 1
-    comp[item[10:19]] = resp.text
+    print(blob.name)
+    comp[blob.name[10:19]] = resp.text
     return
 
 
