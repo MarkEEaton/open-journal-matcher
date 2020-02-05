@@ -1,11 +1,15 @@
 """ run the comparisons using trio (async) """
 
+import asyncio
 import asks
 import trio
 import settings
+from time import sleep
 from google.cloud import storage
 from glob import glob
 from datetime import datetime
+from gcloud.aio.storage import Storage
+from aiohttp import ClientSession as Session
 
 comp = {}
 scores = {}
@@ -14,26 +18,26 @@ counter = 0
 t0 = datetime.now()
 
 
-
 async def parent(counter, inp):
     print("running parent")
-    storage_client = storage.Client()
-    blobs = storage_client.list_blobs(settings.bucket_name)
-    async with trio.open_nursery() as nursery:
-        for blob in blobs:
-            counter += 1
-            nursery.start_soon(fileio, blob, inp)
+    async with Session() as session:
+        storage = Storage(session=session)
+        bucket = storage.get_bucket(settings.bucket_name)
+        blobs = await bucket.list_blobs()
+        blob_objects = []
+        for blob_name in blobs:
+            blob_object = await bucket.get_blob(blob_name)
+            blob_objects.append(blob_object)
+        await asyncio.gather(*[fileio(x, inp) for x in blob_objects])
+    return
 
 
 async def fileio(blob, inp):
     status = 0
     max_out = 0
-    blob.download_to_filename(blob.name)
-    async with await trio.open_file(blob.name, mode="r") as i:
-        # don't use binary here because plain text is easier to send over the wire
-        raw_data = await i.read()
+    raw_data = await blob.download()
     while (status != 200) and (max_out <= 10):
-        resp = await asks.post(settings.cloud_function, json={"d": inp, "e": raw_data})
+        resp = await asks.post(settings.cloud_function, json={"d": inp, "e": str(raw_data)})
         status = resp.status_code
         if status == 503:
             # truncate the data if there is a memory error
@@ -41,11 +45,11 @@ async def fileio(blob, inp):
         max_out += 1
     print(blob.name)
     comp[blob.name[10:19]] = resp.text
-    return
+    return 
 
 
-trio.run(parent, counter, inp)
-
+asyncio.run(parent(counter, inp))
+print("Counter: " + str(counter))
 
 def test_response(resp):
     try:
@@ -62,6 +66,7 @@ async def tabulate(data):
     async with trio.open_nursery() as nursery:
         for idx, item in enumerate(top):
             nursery.start_soon(titles, idx, item)
+    return
 
 
 async def titles(idx, item):
