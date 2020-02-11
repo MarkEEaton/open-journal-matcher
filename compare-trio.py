@@ -1,4 +1,4 @@
-""" run the comparisons using trio (async) """
+""" run the comparisons using asyncio """
 
 import asyncio
 import asks
@@ -18,30 +18,31 @@ async def parent(counter, inp):
         storage = Storage(session=session)
         bucket = storage.get_bucket(settings.bucket_name)
         blobs = await bucket.list_blobs()
-        await asyncio.gather(*[fileio(x, inp, bucket) for x in blobs])
+        await asyncio.gather(*[storageio(x, inp, bucket, session) for x in blobs])
     return
 
 
-async def fileio(blob, inp, bucket):
-    print("start fileio")
+async def storageio(blob, inp, bucket, session):
     status = 0
     max_out = 0
-    blob_object = await bucket.get_blob(blob)
-    raw_data = await blob_object.download()
-    print("start while")
-    while (status != 200) and (max_out <= 10):
-        resp = await asks.post(settings.cloud_function, json={"d": inp, "e": str(raw_data)})
-        print(resp.status_code, blob_object.name)
-        status = resp.status_code
-        if status == 503:
-            # truncate the data if there is a memory error
-            raw_data = raw_data[:100000]
-        print(max_out)
-        max_out += 1
-    print(blob.name)
-    comp[blob.name[10:19]] = resp.text
-    return 
-
+    try:
+        blob_object = await bucket.get_blob(blob, session=session)
+        raw_data = await blob_object.download()
+        while (status != 200) and (max_out <= 10):
+            async with session.post(
+                settings.cloud_function, json={"d": inp, "e": str(raw_data)}
+            ) as resp:
+                print(resp.status, blob_object.name)
+                status = resp.status
+                if status == 503:
+                    # truncate the data if there is a memory error
+                    raw_data = raw_data[:100000]
+                max_out += 1
+                comp[blob_object.name[10:19]] = await resp.text()
+    except asyncio.TimeoutError:
+        print("timeout")
+        pass
+    return
 
 
 def test_response(resp):
@@ -76,6 +77,7 @@ async def titles(idx, item):
     score = item[1]
     scores[rank] = (issn, title, score)
     return
+
 
 if __name__ == "__main__":
     comp = {}
