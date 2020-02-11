@@ -18,7 +18,7 @@ asks = "*"
 multio = "*"
 google-cloud-storage = "*"
 gcloud-aio-storage = "*"
-aiohttp = "*"
+aiohttp = "==3.4.4"
 asyncio = "*"
 
 [requires]

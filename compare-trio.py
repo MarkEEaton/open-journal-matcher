@@ -24,24 +24,25 @@ async def parent(counter, inp):
         storage = Storage(session=session)
         bucket = storage.get_bucket(settings.bucket_name)
         blobs = await bucket.list_blobs()
-        blob_objects = []
-        for blob_name in blobs:
-            blob_object = await bucket.get_blob(blob_name)
-            blob_objects.append(blob_object)
-        await asyncio.gather(*[fileio(x, inp) for x in blob_objects])
+        await asyncio.gather(*[fileio(x, inp, bucket) for x in blobs])
     return
 
 
-async def fileio(blob, inp):
+async def fileio(blob, inp, bucket):
+    print("start fileio")
     status = 0
     max_out = 0
-    raw_data = await blob.download()
+    blob_object = await bucket.get_blob(blob)
+    raw_data = await blob_object.download()
+    print("start while")
     while (status != 200) and (max_out <= 10):
         resp = await asks.post(settings.cloud_function, json={"d": inp, "e": str(raw_data)})
+        print(resp.status_code, blob_object.name)
         status = resp.status_code
         if status == 503:
             # truncate the data if there is a memory error
             raw_data = raw_data[:100000]
+        print(max_out)
         max_out += 1
     print(blob.name)
     comp[blob.name[10:19]] = resp.text
