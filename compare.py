@@ -87,7 +87,6 @@ if __name__ == "__main__":
     t0 = datetime.now()
 
     asyncio.run(parent(counter, inp))
-    print("Counter: " + str(counter))
 
     trio.run(tabulate, comp)
     print(scores)
