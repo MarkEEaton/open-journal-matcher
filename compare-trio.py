@@ -11,12 +11,6 @@ from datetime import datetime
 from gcloud.aio.storage import Storage
 from aiohttp import ClientSession as Session
 
-comp = {}
-scores = {}
-inp = input("Abstract: ")
-counter = 0
-t0 = datetime.now()
-
 
 async def parent(counter, inp):
     print("running parent")
@@ -49,8 +43,6 @@ async def fileio(blob, inp, bucket):
     return 
 
 
-asyncio.run(parent(counter, inp))
-print("Counter: " + str(counter))
 
 def test_response(resp):
     try:
@@ -85,8 +77,17 @@ async def titles(idx, item):
     scores[rank] = (issn, title, score)
     return
 
+if __name__ == "__main__":
+    comp = {}
+    scores = {}
+    inp = input("Abstract: ")
+    counter = 0
+    t0 = datetime.now()
 
-trio.run(tabulate, comp)
-print(scores)
-t1 = datetime.now()
-print(t1 - t0)
+    asyncio.run(parent(counter, inp))
+    print("Counter: " + str(counter))
+
+    trio.run(tabulate, comp)
+    print(scores)
+    t1 = datetime.now()
+    print(t1 - t0)
