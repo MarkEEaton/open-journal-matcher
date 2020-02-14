@@ -12,33 +12,26 @@ from gcloud.aio.storage import Storage
 from aiohttp import ClientSession as Session
 
 
-async def parent(counter, inp):
-    print("running parent")
+async def parent(inp):
     async with Session() as session:
-        storage = Storage(session=session)
-        bucket = storage.get_bucket(settings.bucket_name)
-        blobs = await bucket.list_blobs()
-        await asyncio.gather(*[storageio(x, inp, bucket, session) for x in blobs])
+        await asyncio.gather(
+            *[storageio(blob, inp, session) for blob in settings.bucket_list]
+        )
     return
 
 
-async def storageio(blob, inp, bucket, session):
+async def storageio(blob, inp, session):
     status = 0
     max_out = 0
     try:
-        blob_object = await bucket.get_blob(blob, session=session)
-        raw_data = await blob_object.download()
-        while (status != 200) and (max_out <= 10):
+        while (status != 200) and (max_out < 3):
             async with session.post(
-                settings.cloud_function, json={"d": inp, "e": str(raw_data)}
+                settings.cloud_function, json={"d": inp, "f": blob}
             ) as resp:
-                print(resp.status, blob_object.name)
+                print(resp.status, blob)
                 status = resp.status
-                if status == 503:
-                    # truncate the data if there is a memory error
-                    raw_data = raw_data[:100000]
                 max_out += 1
-                comp[blob_object.name[10:19]] = await resp.text()
+                comp[blob[10:19]] = await resp.text()
     except asyncio.TimeoutError:
         print("timeout")
         pass
@@ -71,7 +64,7 @@ async def titles(idx, item):
     try:
         title = journal_json["results"][0]["bibjson"]["title"]
     except:
-        title = "[title not found... look up by ISSN]"
+        title = "[Title lookup failed. Try finding this by ISSN instead...]"
     rank = idx + 1
     issn = item[0]
     score = item[1]
@@ -83,10 +76,9 @@ if __name__ == "__main__":
     comp = {}
     scores = {}
     inp = input("Abstract: ")
-    counter = 0
     t0 = datetime.now()
 
-    asyncio.run(parent(counter, inp))
+    asyncio.run(parent(inp))
 
     trio.run(tabulate, comp)
     print(scores)
