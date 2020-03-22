@@ -4,13 +4,61 @@ import asyncio
 import asks
 import trio
 import settings
-from datetime import datetime
 import aiohttp
+from quart import Quart, render_template, request
+from wtforms import Form, StringField, validators
+from datetime import datetime
+
+app = Quart(__name__)
+
+
+class AbstractForm(Form):
+    abstract = StringField(
+        "abstract",
+        [
+            validators.Length(
+                min=25,
+                max=10000,
+                message="Your abstract must be between 25 and 10000 characters.",
+            )
+        ],
+    )
+
+
+def getlist(key):
+    return self[key] if type(self[key]) == list else [self[key]]
+
+
+@app.route("/", methods=["GET", "POST"])
+async def index():
+    """ display index page """
+    form = AbstractForm([request.form])
+    if request.method == "POST":
+        comp = {}
+        scores = {}
+        if form.validate():
+            inp = request.form.data["abstract"]
+            t0 = datetime.now()
+            asyncio.run(parent(inp))
+            trio.run(tabulate, comp)
+            print(scores)
+            t1 = datetime.now()
+            print(t1 - t0)
+
+        else:
+            return await render_template(
+                "index.html", error_message=form.errors["abstract_field"][0]
+            )
+
+    else:
+        return await render_template("index.html")
 
 
 async def parent(inp):
     async with aiohttp.ClientSession() as session:
-        await asyncio.gather(*[storageio(blob, inp, session) for blob in settings.bucket_list])
+        await asyncio.gather(
+            *[storageio(blob, inp, session) for blob in settings.bucket_list]
+        )
     return
 
 
@@ -67,14 +115,4 @@ async def titles(idx, item):
 
 
 if __name__ == "__main__":
-    comp = {}
-    scores = {}
-    inp = input("Abstract: ")
-    t0 = datetime.now()
-
-    asyncio.run(parent(inp))
-
-    trio.run(tabulate, comp)
-    print(scores)
-    t1 = datetime.now()
-    print(t1 - t0)
+    app.run(port=8000, host="127.0.0.1", debug=True)
