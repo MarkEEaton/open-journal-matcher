@@ -4,11 +4,7 @@ import asyncio
 import asks
 import trio
 import settings
-from time import sleep
-from google.cloud import storage
-from glob import glob
 from datetime import datetime
-from gcloud.aio.storage import Storage
 from aiohttp import ClientSession as Session
 
 

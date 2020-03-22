@@ -1,0 +1,26 @@
+aiohttp==3.4.4
+anyio==1.2.3
+asks==2.3.7
+async-generator==1.10
+async-timeout==3.0.1
+asyncio==3.4.3
+attrs==19.3.0
+backoff==1.10.0
+cffi==1.14.0
+chardet==3.0.4
+cryptography==2.8
+future==0.18.2
+gcloud-aio-auth==3.0.1
+-e git+https://github.com/MarkEEaton/gcloud-aio.git@22c507fb2246b7a9af53db4debc4ea4e793ac02d#egg=gcloud_aio_storage&subdirectory=storage
+h11==0.9.0
+idna==2.9
+multidict==4.7.5
+outcome==1.0.1
+pycparser==2.20
+PyJWT==1.7.1
+six==1.14.0
+sniffio==1.1.0
+sortedcontainers==2.1.0
+trio==0.13.0
+typing==3.7.4.1
+yarl==1.4.2
