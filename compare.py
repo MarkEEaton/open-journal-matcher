@@ -5,27 +5,27 @@ import asks
 import trio
 import settings
 from datetime import datetime
-from aiohttp import ClientSession as Session
+import aiohttp
 
 
 async def parent(inp):
-    await asyncio.gather(*[storageio(blob, inp) for blob in settings.bucket_list])
+    async with aiohttp.ClientSession() as session:
+        await asyncio.gather(*[storageio(blob, inp, session) for blob in settings.bucket_list])
     return
 
 
-async def storageio(blob, inp):
+async def storageio(blob, inp, session):
     status = 0
     max_out = 0
     try:
         while (status != 200) and (max_out < 10):
-            async with Session() as session:
-                async with session.post(
-                    settings.cloud_function, json={"d": inp, "f": blob}
-                ) as resp:
-                    print(resp.status, blob)
-                    status = resp.status
-                    max_out += 1
-                    comp[blob[10:19]] = await resp.text()
+            async with session.post(
+                settings.cloud_function, json={"d": inp, "f": blob}
+            ) as resp:
+                print(resp.status, blob)
+                status = resp.status
+                max_out += 1
+                comp[blob[10:19]] = await resp.text()
     except asyncio.TimeoutError:
         print("timeout")
         pass
