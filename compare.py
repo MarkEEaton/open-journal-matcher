@@ -58,7 +58,7 @@ def index():
 async def parent(inp, comp):
     async with aiohttp.ClientSession() as session:
         await asyncio.gather(
-            *[storageio(blob, inp, session, comp) for blob in settings.bucket_list]
+                *[storageio(blob, inp, session, comp) for blob in settings.bucket_list[:100]]
         )
     return
 
@@ -110,8 +110,8 @@ async def titles(idx, item, unordered_scores):
         title = "[Title lookup failed. Try finding this by ISSN instead...]"
     rank = idx + 1
     issn = item[0]
-    score = item[1]
-    unordered_scores[score] = (issn, title)
+    score = float(item[1]) * 100
+    unordered_scores[score] = (title, issn)
     return
 
 
