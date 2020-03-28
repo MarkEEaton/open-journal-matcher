@@ -8,16 +8,27 @@ import aiohttp
 import secrets
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import Length
 from flask import Flask, render_template, request, url_for
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = secrets.token_hex() 
+app.config["SECRET_KEY"] = secrets.token_hex()
+
 
 class WebForm(FlaskForm):
-    web_abstract_var = StringField("Enter your abstract here: ", validators=[DataRequired()]) 
+    web_abstract_var = StringField(
+        "Enter your abstract here: ",
+        validators=[
+            Length(
+                min=25,
+                max=10000,
+                message="Your abstract must be between 25 and 10000 characters",
+            )
+        ],
+    )
     submit = SubmitField("Search")
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -34,12 +45,13 @@ def index():
         print(scores)
         t1 = datetime.now()
         print(t1 - t0)
-        return render_template("results.html")
+        return render_template("index.html", form=form, output=scores)
+
+    elif request.method == "POST" and not form.validate_on_submit():
+        return render_template("index.html", form=form, output=form.errors["web_abstract_var"][0])
 
     else:
-        return render_template("index.html", form=form)
-    """
-        """
+        return render_template("index.html", form=form, output="")
 
 
 async def parent(inp, comp):

@@ -11,9 +11,6 @@
                 {{ form.hidden_tag() }}
                 <p>{{ form.web_abstract_var.label }} {{ form.web_abstract_var(size=32) }} {{ form.submit() }}</p>
         </form>
-<!--        <div id=errors>{{ error_message }}</div>
-        <div id=data style="display:none;">The best match is:<br/>
-            <strong>{{ title }}</strong> (issn: {{ issn }}), with a relevancy score of: <strong>{{ score }}</strong>.
-		</div>-->
+		{{ output }}
     </body>
 </html>
