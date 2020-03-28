@@ -1,5 +1,6 @@
 """ run the comparisons using asyncio """
 
+import time
 import asyncio
 import asks
 import trio
@@ -10,7 +11,7 @@ from collections import OrderedDict
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import Length
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, Response
 from datetime import datetime
 
 app = Flask(__name__)
@@ -60,13 +61,22 @@ def index():
         return render_template("index.html", form=form, output=scores)
 
     elif request.method == "POST" and not form.validate_on_submit():
-        return render_template(
-            "index.html", form=form, output=form.errors["web_abstract_var"][0]
-        )
+        return render_template("index.html", form=form, output=form.errors["web_abstract_var"][0])
 
     else:
         return render_template("index.html", form=form, output="")
 
+@app.route('/progress')
+def progress():
+    def generate():
+        x = 0
+		
+        while x <= 100:
+            yield "data:" + str(x) + "\n\n"
+            x = x + 10
+            time.sleep(0.5)
+
+    return Response(generate(), mimetype= 'text/event-stream')
 
 async def parent(inp, comp):
     """ manage the async work """
