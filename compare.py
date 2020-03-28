@@ -5,64 +5,52 @@ import asks
 import trio
 import settings
 import aiohttp
-from quart import Quart, render_template, request
-from wtforms import Form, StringField, validators
+import secrets
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
+from flask import Flask, render_template, request, url_for
 from datetime import datetime
 
-app = Quart(__name__)
+app = Flask(__name__)
+app.config['SECRET_KEY'] = secrets.token_hex() 
 
-
-class AbstractForm(Form):
-    abstract = StringField(
-        "abstract",
-        [
-            validators.Length(
-                min=25,
-                max=10000,
-                message="Your abstract must be between 25 and 10000 characters.",
-            )
-        ],
-    )
-
-
-def getlist(key):
-    return self[key] if type(self[key]) == list else [self[key]]
-
+class WebForm(FlaskForm):
+    web_abstract_var = StringField("Enter your abstract here: ", validators=[DataRequired()]) 
+    submit = SubmitField("Search")
 
 @app.route("/", methods=["GET", "POST"])
-async def index():
+def index():
     """ display index page """
-    form = AbstractForm([request.form])
-    if request.method == "POST":
+    form = WebForm()
+    if request.method == "POST" and form.validate_on_submit():
         comp = {}
         scores = {}
-        if form.validate():
-            inp = request.form.data["abstract"]
-            t0 = datetime.now()
-            asyncio.run(parent(inp))
-            trio.run(tabulate, comp)
-            print(scores)
-            t1 = datetime.now()
-            print(t1 - t0)
-
-        else:
-            return await render_template(
-                "index.html", error_message=form.errors["abstract_field"][0]
-            )
+        inp = form.web_abstract_var.data
+        print(inp)
+        t0 = datetime.now()
+        asyncio.run(parent(inp, comp))
+        trio.run(tabulate, comp, scores)
+        print(scores)
+        t1 = datetime.now()
+        print(t1 - t0)
+        return render_template("results.html")
 
     else:
-        return await render_template("index.html")
+        return render_template("index.html", form=form)
+    """
+        """
 
 
-async def parent(inp):
+async def parent(inp, comp):
     async with aiohttp.ClientSession() as session:
         await asyncio.gather(
-            *[storageio(blob, inp, session) for blob in settings.bucket_list]
+            *[storageio(blob, inp, session, comp) for blob in settings.bucket_list]
         )
     return
 
 
-async def storageio(blob, inp, session):
+async def storageio(blob, inp, session, comp):
     status = 0
     max_out = 0
     try:
@@ -87,18 +75,18 @@ def test_response(resp):
         return False
 
 
-async def tabulate(data):
+async def tabulate(comp, scores):
     to_sort = [(k, v) for k, v in comp.items() if test_response(v)]
     print("Journals checked:" + str(len(to_sort)))
     top = sorted(to_sort, key=lambda x: x[1], reverse=True)[:5]
 
     async with trio.open_nursery() as nursery:
         for idx, item in enumerate(top):
-            nursery.start_soon(titles, idx, item)
+            nursery.start_soon(titles, idx, item, scores)
     return
 
 
-async def titles(idx, item):
+async def titles(idx, item, scores):
     journal_data = await asks.get(
         "https://doaj.org/api/v1/search/journals/issn%3A" + item[0]
     )
