@@ -18,6 +18,8 @@ app.config["SECRET_KEY"] = secrets.token_hex()
 
 
 class WebForm(FlaskForm):
+    """ for validation """
+
     web_abstract_var = StringField(
         "Enter your abstract here: ",
         validators=[
@@ -37,33 +39,49 @@ def index():
     form = WebForm()
     if request.method == "POST" and form.validate_on_submit():
         comp = {}
-        unordered_scores = {} 
+        unordered_scores = {}
         inp = form.web_abstract_var.data
         print(inp)
         t0 = datetime.now()
+
+        # do the work
         asyncio.run(parent(inp, comp))
         trio.run(tabulate, comp, unordered_scores)
-        scores = OrderedDict(sorted(unordered_scores.items(), key=lambda t: t[0], reverse=True))
+
+        # sort the results
+        scores = OrderedDict(
+            sorted(unordered_scores.items(), key=lambda t: t[0], reverse=True)
+        )
+
+        # calculate running time
         t1 = datetime.now()
         print(t1 - t0)
+
         return render_template("index.html", form=form, output=scores)
 
     elif request.method == "POST" and not form.validate_on_submit():
-        return render_template("index.html", form=form, output=form.errors["web_abstract_var"][0])
+        return render_template(
+            "index.html", form=form, output=form.errors["web_abstract_var"][0]
+        )
 
     else:
         return render_template("index.html", form=form, output="")
 
 
 async def parent(inp, comp):
+    """ manage the async work """
     async with aiohttp.ClientSession() as session:
         await asyncio.gather(
-                *[storageio(blob, inp, session, comp) for blob in settings.bucket_list[:100]]
+            *[
+                storageio(blob, inp, session, comp)
+                for blob in settings.bucket_list[:100]
+            ]
         )
     return
 
 
 async def storageio(blob, inp, session, comp):
+    """ interact with google cloud function """
     status = 0
     max_out = 0
     try:
@@ -82,6 +100,7 @@ async def storageio(blob, inp, session, comp):
 
 
 def test_response(resp):
+    """ some abstract collections raise ValueErrors. Ignore these """
     try:
         return float(resp)  # will evaluate as false if float == 0.0
     except ValueError:
@@ -89,10 +108,15 @@ def test_response(resp):
 
 
 async def tabulate(comp, unordered_scores):
+
+    # test for validity
     to_sort = [(k, v) for k, v in comp.items() if test_response(v)]
     print("Journals checked:" + str(len(to_sort)))
+
+    # this sort is needed to reduce API calls to doaj.org
     top = sorted(to_sort, key=lambda x: x[1], reverse=True)[:5]
 
+    # make calls to the doaj API asynchronously
     async with trio.open_nursery() as nursery:
         for idx, item in enumerate(top):
             nursery.start_soon(titles, idx, item, unordered_scores)
