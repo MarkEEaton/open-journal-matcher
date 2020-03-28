@@ -6,6 +6,7 @@ import trio
 import settings
 import aiohttp
 import secrets
+from collections import OrderedDict
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import Length
@@ -36,13 +37,13 @@ def index():
     form = WebForm()
     if request.method == "POST" and form.validate_on_submit():
         comp = {}
-        scores = {}
+        unordered_scores = {} 
         inp = form.web_abstract_var.data
         print(inp)
         t0 = datetime.now()
         asyncio.run(parent(inp, comp))
-        trio.run(tabulate, comp, scores)
-        print(scores)
+        trio.run(tabulate, comp, unordered_scores)
+        scores = OrderedDict(sorted(unordered_scores.items(), key=lambda t: t[0], reverse=True))
         t1 = datetime.now()
         print(t1 - t0)
         return render_template("index.html", form=form, output=scores)
@@ -87,18 +88,18 @@ def test_response(resp):
         return False
 
 
-async def tabulate(comp, scores):
+async def tabulate(comp, unordered_scores):
     to_sort = [(k, v) for k, v in comp.items() if test_response(v)]
     print("Journals checked:" + str(len(to_sort)))
     top = sorted(to_sort, key=lambda x: x[1], reverse=True)[:5]
 
     async with trio.open_nursery() as nursery:
         for idx, item in enumerate(top):
-            nursery.start_soon(titles, idx, item, scores)
+            nursery.start_soon(titles, idx, item, unordered_scores)
     return
 
 
-async def titles(idx, item, scores):
+async def titles(idx, item, unordered_scores):
     journal_data = await asks.get(
         "https://doaj.org/api/v1/search/journals/issn%3A" + item[0]
     )
@@ -110,7 +111,7 @@ async def titles(idx, item, scores):
     rank = idx + 1
     issn = item[0]
     score = item[1]
-    scores[rank] = (issn, title, score)
+    unordered_scores[score] = (issn, title)
     return
 
 

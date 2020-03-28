@@ -11,6 +11,10 @@
                 {{ form.hidden_tag() }}
                 <p>{{ form.web_abstract_var.label }} {{ form.web_abstract_var(size=32) }} {{ form.submit() }}</p>
         </form>
-		{{ output }}
+		<ol>
+				{% for item in output %}
+				<li>{{ item }}</li>
+				{% endfor %}
+		</ol>
     </body>
 </html>
