@@ -139,6 +139,8 @@ async def titles(idx, item, unordered_scores):
     journal_json = journal_data.json()
     try:
         title = journal_json["results"][0]["bibjson"]["title"]
+        if title[-1:] == " ":
+            title = title[:-1]
     except:
         title = "[Title lookup failed. Try finding this by ISSN instead...]"
     rank = idx + 1
