@@ -1,0 +1,15 @@
+#top {
+		margin: 50px;
+}
+
+.progress {
+		width: 35%;
+		margin: 50px;
+		display: none;
+}
+
+ul {
+		list-style-type: none;
+}
+
+
