@@ -72,7 +72,7 @@ def index():
 def progress():
     def generate():
         while READ <= 100:
-            return "data:" + str(READ) + "\n\n"
+            return "data:" + str(READ) + "\n\n" + "retry: 5\n\n"
 
     return Response(generate(), mimetype='text/event-stream')
 
