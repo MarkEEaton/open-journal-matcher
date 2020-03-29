@@ -17,7 +17,6 @@ from datetime import datetime
 app = Flask(__name__)
 app.config["SECRET_KEY"] = secrets.token_hex()
 
-READ = 0
 
 class WebForm(FlaskForm):
     """ for validation """
@@ -38,6 +37,8 @@ class WebForm(FlaskForm):
 @app.route("/", methods=["GET", "POST"])
 def index():
     """ display index page """
+    global READ
+    READ = 0
     form = WebForm()
     if request.method == "POST" and form.validate_on_submit():
         comp = {}
@@ -83,7 +84,7 @@ async def parent(inp, comp):
         await asyncio.gather(
             *[
                 storageio(blob, inp, session, comp)
-                for blob in settings.bucket_list[:100]
+                for blob in settings.bucket_list
             ]
         )
     return
@@ -106,7 +107,7 @@ async def storageio(blob, inp, session, comp):
         print("timeout")
         pass
     global READ
-    READ += 1
+    READ += 1 / len(settings.bucket_list) * 100
     return
 
 
