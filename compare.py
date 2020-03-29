@@ -17,6 +17,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.config["SECRET_KEY"] = secrets.token_hex()
 
+READ = 0
 
 class WebForm(FlaskForm):
     """ for validation """
@@ -66,17 +67,15 @@ def index():
     else:
         return render_template("index.html", form=form, output="")
 
+
 @app.route('/progress')
 def progress():
     def generate():
-        x = 0
-		
-        while x <= 100:
-            yield "data:" + str(x) + "\n\n"
-            x = x + 10
-            time.sleep(0.5)
+        while READ <= 100:
+            return "data:" + str(READ) + "\n\n"
 
-    return Response(generate(), mimetype= 'text/event-stream')
+    return Response(generate(), mimetype='text/event-stream')
+
 
 async def parent(inp, comp):
     """ manage the async work """
@@ -106,6 +105,8 @@ async def storageio(blob, inp, session, comp):
     except asyncio.TimeoutError:
         print("timeout")
         pass
+    global READ
+    READ += 1
     return
 
 
