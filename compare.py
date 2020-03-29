@@ -14,7 +14,7 @@ from wtforms.validators import Length
 from flask import Flask, render_template, request, url_for, Response
 from datetime import datetime
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="/static")
 app.config["SECRET_KEY"] = secrets.token_hex()
 
 
@@ -82,10 +82,7 @@ async def parent(inp, comp):
     """ manage the async work """
     async with aiohttp.ClientSession() as session:
         await asyncio.gather(
-            *[
-                storageio(blob, inp, session, comp)
-                for blob in settings.bucket_list
-            ]
+            *[storageio(blob, inp, session, comp) for blob in settings.bucket_list]
         )
     return
 
