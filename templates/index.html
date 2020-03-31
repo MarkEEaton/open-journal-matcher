@@ -26,7 +26,7 @@
 				<h1>Open Source Journal Matcher</h1>
 				<p>Description goes here</p>
 			</div>
-			<div class="col-1">
+			<div class="col-1" style="max-width:100%">
 				<form action="" method="POST" novalidate>
 						{{ form.hidden_tag() }}
 						<p>{{ form.web_abstract_var.label }} {{ form.web_abstract_var() }} {{ form.submit() }}</p>
@@ -37,7 +37,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-2">
+			<div class="col-2" style="max-width:100%">
 				<ul>
 						{% for item in output %}
 						<li><strong>{{ "{0:.2f}".format(item) }}</strong> : {{ output[item][0] }}.  ISSN: {{ output[item][1] }}</li>
