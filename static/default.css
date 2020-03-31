@@ -1,6 +1,8 @@
 .wrapper {
+		height: 100vh;
 		display: grid;
 		grid-auto-columns: 1fr;
+		grid-template-rows: 1fr 3fr;
 }
 
 
@@ -20,7 +22,6 @@ ul {
 			background-color: #ccc;
 			grid-row: 2 / 3;
 			grid-column: 1 / 2;
-			max-width: unset;
 	}
 
 
@@ -28,7 +29,6 @@ ul {
 			background-color: #555;
 			grid-row: 2 / 3;
 			grid-column: 2 / 3;
-			max-width: unset;
 	}
 }
 
