@@ -17,6 +17,11 @@
 		margin: 15px;
 }
 
+input {
+		width: inherit;
+		height: inherit;
+}
+
 .col-2 {
 		background-color: #3333ff;
 }
@@ -26,7 +31,7 @@ ul {
 }
 
 
-@media (min-width:771px) { 
+@media (min-width:781px) { 
 	.wrapper {
 		height: 100vh;
 		display: grid;
@@ -52,7 +57,7 @@ ul {
 	}
 }
 
-@media (max-width: 770px) {
+@media (max-width: 780px) {
 	.wrapper{
 		height: 100vh;
 		display: grid;

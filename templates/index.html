@@ -33,7 +33,10 @@
 			<div class="col-1" style="max-width:100%">
 				<form action="" method="POST" novalidate>
 					{{ form.hidden_tag() }}
-					<p>{{ form.web_abstract_var() }} {{ form.submit() }}</p>
+					<div style="padding: 50px">
+						<div id="searchbox" style="width:100%; height:300px;">{{ form.web_abstract_var }}</div> 
+						<div style="width:200px; height:50px;">{{ form.submit() }}</div>
+					</div>
 				</form>
 				<div class="progress" id="statusbar" style="display:none;">
 					<div class="progress-bar active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
