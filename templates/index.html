@@ -26,8 +26,8 @@
 				<div id="spacer"></div>
 				<div id="how">
 					<h1>Open Journal Matcher</h1>
-					This tool matches a draft abstract with the best matching open access journal. Paste your abstract below.<br />
-					<a href="">How does it work?</a>
+					This tool matches a draft abstract with the best-matching open access journals. Paste your abstract below.<br />
+					How does it work? <a href="">Find out more</a>.
 				</div>
 			</div>
 			<div class="col-1" style="max-width:100%">
@@ -35,8 +35,8 @@
 				<form class="form-group" action="" method="POST" novalidate>
 					{{ form.hidden_tag() }}
 					<div class="pad">
-						<textarea class="form-control" style="width:100%; height:300px;" id="web_abstract_var" placeholder="Enter your abstract here..." name="web_abstract_var"></textarea> 
-						<div style="width:200px; height:50px;" class="pad">{{ form.submit() }}</div>
+						<textarea class="pad form-control" style="width:100%; height:300px;" id="web_abstract_var" placeholder="Enter your abstract here..." name="web_abstract_var"></textarea> 
+						<div style="width:200px; height:50px;" class="modified-pad">{{ form.submit() }}</div>
 					</div>
 				</form>
 				<div class="progress pad" id="statusbar" style="display:none; margin:50px;">

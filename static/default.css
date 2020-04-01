@@ -55,6 +55,10 @@ ul {
 			padding: 50px 50px 0px 50px;
 	}
 
+	.modified-pad {
+			padding: 50px 50px 0px 0px;
+	}
+
 	.col-2 {
 			grid-row: 2 / 3;
 			grid-column: 2 / 3;
@@ -86,6 +90,10 @@ ul {
 
 	.pad {
 			padding: 20px 20px 0px 20px;
+	}
+
+	.modified-pad {
+			padding: 20px 20px 0px 0px;
 	}
 
 	.col-2 {
