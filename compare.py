@@ -7,22 +7,23 @@ import trio
 import settings
 import aiohttp
 import secrets
+from flask_bootstrap import Bootstrap
 from collections import OrderedDict
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import TextAreaField, SubmitField
 from wtforms.validators import Length
 from flask import Flask, render_template, request, url_for, Response
 from datetime import datetime
 
 app = Flask(__name__, static_url_path="/static")
+Bootstrap(app)
 app.config["SECRET_KEY"] = secrets.token_hex()
 
 
 class WebForm(FlaskForm):
     """ for validation """
 
-    web_abstract_var = StringField(
-        "Enter your abstract here: ",
+    web_abstract_var = TextAreaField(
         validators=[
             Length(
                 min=25,
