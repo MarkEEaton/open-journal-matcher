@@ -28,7 +28,7 @@ class WebForm(FlaskForm):
             Length(
                 min=25,
                 max=10000,
-                message="Your abstract must be between 25 and 10000 characters",
+                message="Your abstract must be between 25 and 10000 characters.",
             )
         ],
     )
@@ -61,13 +61,13 @@ def index():
         t1 = datetime.now()
         print(t1 - t0)
 
-        return render_template("index.html", form=form, output=scores)
+        return render_template("index.html", form=form, errors={}, output=scores)
 
     elif request.method == "POST" and not form.validate_on_submit():
-        return render_template("index.html", form=form, output=form.errors)
+        return render_template("index.html", form=form, errors=form.errors, output="")
 
     else:
-        return render_template("index.html", form=form, output="")
+        return render_template("index.html", form=form, errors={}, output="")
 
 
 @app.route('/progress')

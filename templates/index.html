@@ -47,10 +47,15 @@
 						<span class="progress-bar-label">0%</span>
 					</div>
 				</div>
-				<ul style="padding 50px;">
+				<ul class="pad">
 					{% for item in output %}
-					<li><strong>{{ "{0:.2f}".format(item) }}</strong> : {{ output[item][0] }}.  ISSN: {{ output[item][1] }}</li>
+						<li><strong>{{ "{0:.2f}".format(item) }}</strong> : {{ output[item][0] }}.  ISSN: {{ output[item][1] }}</li>
 					{% endfor %}
+					{% if errors.get('web_abstract_var')[0] %}
+						<div style="margin-top:-50px;" class="alert alert-danger" role="alert"><strong>Error!</strong>
+							{{ errors.get('web_abstract_var')[0] }}
+						</div>
+					{% endif %}
 				</ul>
 			</div>
 		</div>
