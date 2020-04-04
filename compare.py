@@ -64,7 +64,7 @@ def index():
         return render_template("index.html", form=form, output=scores)
 
     elif request.method == "POST" and not form.validate_on_submit():
-        return render_template("index.html", form=form, output=form.errors["web_abstract_var"][0])
+        return render_template("index.html", form=form, output=form.errors)
 
     else:
         return render_template("index.html", form=form, output="")
@@ -143,7 +143,7 @@ async def titles(idx, item, unordered_scores):
         if title[-1:] == " ":
             title = title[:-1]
     except:
-        title = "[Title lookup failed. Try finding this by ISSN instead...]"
+        title = "[Title lookup failed. Try finding this item by ISSN instead...]"
     rank = idx + 1
     issn = item[0]
     score = float(item[1]) * 100
