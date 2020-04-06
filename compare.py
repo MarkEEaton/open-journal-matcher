@@ -1,5 +1,6 @@
 """ run the comparisons using asyncio """
 
+import socket
 import time
 import asyncio
 import asks
@@ -19,6 +20,7 @@ app = Flask(__name__, static_url_path="/static")
 Bootstrap(app)
 app.config["SECRET_KEY"] = secrets.token_hex()
 
+READ = 0
 
 class WebForm(FlaskForm):
     """ for validation """
@@ -38,10 +40,10 @@ class WebForm(FlaskForm):
 @app.route("/", methods=["GET", "POST"])
 def index():
     """ display index page """
-    global READ
-    READ = 0
     form = WebForm()
     if request.method == "POST" and form.validate_on_submit():
+        global READ
+        READ = 0
         comp = {}
         unordered_scores = {}
         inp = form.web_abstract_var.data
@@ -73,6 +75,7 @@ def index():
 @app.route('/progress')
 def progress():
     def generate():
+        global READ
         while READ <= 100:
             return "data:" + str(READ) + "\n\n" + "retry: 5\n\n"
 
@@ -81,26 +84,35 @@ def progress():
 
 async def parent(inp, comp):
     """ manage the async work """
-    async with aiohttp.ClientSession() as session:
-        await asyncio.gather(
-            *[storageio(blob, inp, session, comp) for blob in settings.bucket_list]
-        )
+    await asyncio.gather(
+        *[storageio(blob, inp, comp) for blob in settings.bucket_list]
+    )
     return
 
 
-async def storageio(blob, inp, session, comp):
+async def storageio(blob, inp, comp):
     """ interact with google cloud function """
     status = 0
     max_out = 0
+    conn = aiohttp.TCPConnector(
+        family=socket.AF_INET,
+        ssl=False,
+        use_dns_cache=False,
+        keepalive_timeout=5000,
+    )
     try:
-        while (status != 200) and (max_out < 10):
-            async with session.post(
-                settings.cloud_function, json={"d": inp, "f": blob}
-            ) as resp:
-                print(resp.status, blob)
-                status = resp.status
-                max_out += 1
-                comp[blob[10:19]] = await resp.text()
+        sem = asyncio.Semaphore(99)
+        async with sem:
+            async with aiohttp.ClientSession(connector=conn) as session:
+                while (status != 200) and (max_out < 10):
+                    async with session.post(
+                        settings.cloud_function, 
+                        json={"d": inp, "f": blob}
+                    ) as resp:
+                        print(resp.status, blob)
+                        status = resp.status
+                        max_out += 1
+                        comp[blob[10:19]] = await resp.text()
     except asyncio.TimeoutError:
         print("timeout")
         pass
@@ -152,4 +164,4 @@ async def titles(idx, item, unordered_scores):
 
 
 if __name__ == "__main__":
-    app.run(port=8000, host="127.0.0.1", debug=True)
+    app.run()
