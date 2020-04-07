@@ -29,8 +29,8 @@ class WebForm(FlaskForm):
         validators=[
             Length(
                 min=25,
-                max=10000,
-                message="Your abstract must be between 25 and 10000 characters.",
+                max=5000,
+                message="Your abstract must be between 25 and 5000 characters.",
             )
         ],
     )
@@ -77,7 +77,7 @@ def progress():
     def generate():
         global READ
         while READ <= 100:
-            return "data:" + str(READ) + "\n\n" + "retry: 5\n\n"
+            return "data:" + str(READ) + "\n\n" + "retry: 20\n\n"
 
     return Response(generate(), mimetype='text/event-stream')
 
@@ -155,7 +155,7 @@ async def titles(idx, item, unordered_scores):
         if title[-1:] == " ":
             title = title[:-1]
     except:
-        title = "[Title lookup failed. Try finding this item by ISSN instead...]"
+        title = "Title lookup failed. Try finding this item by ISSN instead.."
     rank = idx + 1
     issn = item[0]
     score = float(item[1]) * 100
