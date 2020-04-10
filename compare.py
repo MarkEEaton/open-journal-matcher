@@ -43,6 +43,7 @@ class WebForm(FlaskForm):
 @flask_app.route("/", methods=["GET", "POST"])
 def index():
     """ display index page """
+    celery_app.control.purge()
     global READ
     READ = 0
     form = WebForm()
@@ -55,9 +56,10 @@ def index():
 
         # do the work
 
-        for blob in settings.bucket_list:
-            storageio.delay(blob, inp, comp)
-        trio.run(tabulate, comp, unordered_scores)
+        asyncs = [storageio.delay(blob, inp, comp) for blob in settings.bucket_list]
+        results = [async_item.wait() for asyncs_item in asyncs]
+        print(results)
+        #trio.run(tabulate, comp, unordered_scores)
 
         # sort the results
         scores = OrderedDict(
