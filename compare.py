@@ -1,5 +1,6 @@
 """ run the comparisons using asyncio """
 
+import requests
 import time
 import asyncio
 import asks
@@ -7,6 +8,8 @@ import trio
 import settings
 import aiohttp
 import secrets
+from celery import Celery
+from celery.decorators import task
 from flask_bootstrap import Bootstrap
 from collections import OrderedDict
 from flask_wtf import FlaskForm
@@ -15,9 +18,11 @@ from wtforms.validators import Length
 from flask import Flask, render_template, request, url_for, Response
 from datetime import datetime
 
-app = Flask(__name__, static_url_path="/static")
-Bootstrap(app)
-app.config["SECRET_KEY"] = secrets.token_hex()
+flask_app = Flask(__name__, static_url_path="/static")
+Bootstrap(flask_app)
+flask_app.config["SECRET_KEY"] = secrets.token_hex()
+
+celery_app = Celery('compare', broker='pyamqp://guest@localhost//')
 
 
 class WebForm(FlaskForm):
@@ -35,7 +40,7 @@ class WebForm(FlaskForm):
     submit = SubmitField("Search")
 
 
-@app.route("/", methods=["GET", "POST"])
+@flask_app.route("/", methods=["GET", "POST"])
 def index():
     """ display index page """
     global READ
@@ -49,7 +54,9 @@ def index():
         t0 = datetime.now()
 
         # do the work
-        asyncio.run(parent(inp, comp))
+
+        for blob in settings.bucket_list:
+            storageio.delay(blob, inp, comp)
         trio.run(tabulate, comp, unordered_scores)
 
         # sort the results
@@ -70,42 +77,25 @@ def index():
         return render_template("index.html", form=form, errors={}, output="")
 
 
-@app.route('/progress')
-def progress():
-    def generate():
-        while READ <= 100:
-            return "data:" + str(READ) + "\n\n" + "retry: 5\n\n"
 
-    return Response(generate(), mimetype='text/event-stream')
-
-
-async def parent(inp, comp):
-    """ manage the async work """
-    async with aiohttp.ClientSession() as session:
-        await asyncio.gather(
-            *[storageio(blob, inp, session, comp) for blob in settings.bucket_list]
-        )
-    return
-
-
-async def storageio(blob, inp, session, comp):
+@task(name="access_storage")
+def storageio(blob, inp, comp):
     """ interact with google cloud function """
+    print("storageio")
     status = 0
     max_out = 0
     try:
         while (status != 200) and (max_out < 10):
-            async with session.post(
+            with requests.post(
                 settings.cloud_function, json={"d": inp, "f": blob}
             ) as resp:
-                print(resp.status, blob)
-                status = resp.status
+                print(resp.status_code, blob)
+                status = resp.status_code
                 max_out += 1
-                comp[blob[10:19]] = await resp.text()
+                comp[blob[10:19]] = resp.text
     except asyncio.TimeoutError:
         print("timeout")
         pass
-    global READ
-    READ += 1 / len(settings.bucket_list) * 100
     return
 
 
@@ -152,4 +142,4 @@ async def titles(idx, item, unordered_scores):
 
 
 if __name__ == "__main__":
-    app.run(port=8000, host="127.0.0.1", debug=True)
+    flask_app.run(port=8000, host="127.0.0.1", debug=True)
