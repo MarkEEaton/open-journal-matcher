@@ -8,7 +8,7 @@ import trio
 import settings
 import aiohttp
 import secrets
-from celery import Celery
+from celery import Celery, group
 from celery.decorators import task
 from flask_bootstrap import Bootstrap
 from collections import OrderedDict
@@ -22,7 +22,7 @@ flask_app = Flask(__name__, static_url_path="/static")
 Bootstrap(flask_app)
 flask_app.config["SECRET_KEY"] = secrets.token_hex()
 
-celery_app = Celery('compare', broker='pyamqp://guest@localhost//')
+celery_app = Celery('compare', backend='rpc://', broker='pyamqp://guest@localhost//')
 
 
 class WebForm(FlaskForm):
@@ -43,11 +43,11 @@ class WebForm(FlaskForm):
 @flask_app.route("/", methods=["GET", "POST"])
 def index():
     """ display index page """
-    celery_app.control.purge()
     global READ
     READ = 0
     form = WebForm()
     if request.method == "POST" and form.validate_on_submit():
+        celery_app.control.purge()
         comp = {}
         unordered_scores = {}
         inp = form.web_abstract_var.data
@@ -55,10 +55,11 @@ def index():
         t0 = datetime.now()
 
         # do the work
+        job = group([storageio.s(blob, inp, comp) for blob in settings.bucket_list[:20]])
+        result = job.apply_async()
+        print(result.get())
 
-        asyncs = [storageio.delay(blob, inp, comp) for blob in settings.bucket_list]
-        results = [async_item.wait() for asyncs_item in asyncs]
-        print(results)
+
         #trio.run(tabulate, comp, unordered_scores)
 
         # sort the results
@@ -73,9 +74,11 @@ def index():
         return render_template("index.html", form=form, errors={}, output=scores)
 
     elif request.method == "POST" and not form.validate_on_submit():
+        celery_app.control.purge()
         return render_template("index.html", form=form, errors=form.errors, output="")
 
     else:
+        celery_app.control.purge()
         return render_template("index.html", form=form, errors={}, output="")
 
 
@@ -83,7 +86,6 @@ def index():
 @task(name="access_storage")
 def storageio(blob, inp, comp):
     """ interact with google cloud function """
-    print("storageio")
     status = 0
     max_out = 0
     try:
@@ -98,7 +100,7 @@ def storageio(blob, inp, comp):
     except asyncio.TimeoutError:
         print("timeout")
         pass
-    return
+    return (blob[10:19], resp.text)
 
 
 def test_response(resp):
