@@ -1,12 +1,8 @@
-""" run the comparisons using asyncio """
-
 import requests
 import time
-import asyncio
 import asks
 import trio
 import settings
-import aiohttp
 import secrets
 from celery import Celery, group
 from celery.decorators import task
@@ -22,7 +18,7 @@ flask_app = Flask(__name__, static_url_path="/static")
 Bootstrap(flask_app)
 flask_app.config["SECRET_KEY"] = secrets.token_hex()
 
-celery_app = Celery('compare', backend='rpc://', broker=settings.local_broker)
+celery_app = Celery("compare", backend="rpc://", broker=settings.local_broker)
 
 
 class WebForm(FlaskForm):
@@ -52,21 +48,21 @@ def index():
 
         # do the work
         job = group([storageio.s(blob, inp) for blob in settings.bucket_list])
-        print("job assebled")
         result = job.apply_async()
+        result = result.get()
 
+        scores = sorted(result, key=lambda t: t[1], reverse=True)
 
-        scores = sorted(result.get(), key=lambda t: t[1], reverse=True)
-        print(scores)
-        
-        trio.run(tabulate, scores[:5])
-        # TODO Gather results from running Trio
+        output = {}
+        trio.run(tabulate, scores[:5], output)
+        output_list = [v for v in output.values()]
+        sorted_output = sorted(output_list, key=lambda t: t[0], reverse=True)
 
         # calculate running time
         t1 = datetime.now()
         print(t1 - t0)
 
-        return render_template("index.html", form=form, errors={}, output=scores)
+        return render_template("index.html", form=form, errors={}, output=sorted_output)
 
     elif request.method == "POST" and not form.validate_on_submit():
         celery_app.control.purge()
@@ -77,49 +73,41 @@ def index():
         return render_template("index.html", form=form, errors={}, output="")
 
 
-
 @task(name="access_storage")
 def storageio(blob, inp):
     """ interact with google cloud function """
     status = 0
     max_out = 0
-    try:
-        while (status != 200) and (max_out < 10):
-            with requests.post(
-                settings.cloud_function, json={"d": inp, "f": blob}
-            ) as resp:
-                print(resp.status_code, blob)
-                status = resp.status_code
-                max_out += 1
-    except asyncio.TimeoutError:
-        print("timeout")
-        pass
+    while (status != 200) and (max_out < 10):
+        with requests.post(settings.cloud_function, json={"d": inp, "f": blob}) as resp:
+            print(resp.status_code, blob)
+            status = resp.status_code
+            max_out += 1
     return (blob[10:19], resp.text)
 
 
 def test_response(resp):
-    """ some abstract collections raise ValueErrors. Ignore these """
+    """ some abstract collections raise ValueErrors. Ignore these. """
     try:
         return float(resp)  # will evaluate as false if float == 0.0
     except ValueError:
         return False
 
 
-async def tabulate(scores):
+async def tabulate(scores, output):
 
     # test for validity
-    #to_sort = [(k, v) for k, v in comp.items() if test_response(v)]
-    #print("Journals checked:" + str(len(to_sort)))
-
+    tested = [[item[0], item[1]] for item in scores if test_response(item[1])]
+    print("Journals checked:" + str(len(tested)))
 
     # make calls to the doaj API asynchronously
     async with trio.open_nursery() as nursery:
-        for item in scores:
-            nursery.start_soon(titles, item)
+        for item in tested:
+            nursery.start_soon(titles, item, output)
     return
 
 
-async def titles(item):
+async def titles(item, output):
     journal_data = await asks.get(
         "https://doaj.org/api/v1/search/journals/issn%3A" + item[0]
     )
@@ -129,10 +117,11 @@ async def titles(item):
         if title[-1:] == " ":
             title = title[:-1]
     except:
-        title = "[Title lookup failed. Try finding this item by ISSN instead...]"
+        title = "Title lookup failed. Try finding this item by ISSN instead.."
     issn = item[0]
     score = float(item[1]) * 100
-    return [score, title, issn]
+    output[issn] = [score, title, issn]
+    return
 
 
 if __name__ == "__main__":
