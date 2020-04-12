@@ -22,7 +22,7 @@ flask_app = Flask(__name__, static_url_path="/static")
 Bootstrap(flask_app)
 flask_app.config["SECRET_KEY"] = secrets.token_hex()
 
-celery_app = Celery('compare', backend='rpc://', broker='pyamqp://guest@localhost//')
+celery_app = Celery('compare', backend='rpc://', broker=settings.local_broker)
 
 
 class WebForm(FlaskForm):
@@ -43,29 +43,24 @@ class WebForm(FlaskForm):
 @flask_app.route("/", methods=["GET", "POST"])
 def index():
     """ display index page """
-    global READ
-    READ = 0
     form = WebForm()
     if request.method == "POST" and form.validate_on_submit():
         celery_app.control.purge()
-        comp = {}
-        unordered_scores = {}
         inp = form.web_abstract_var.data
         print(inp)
         t0 = datetime.now()
 
         # do the work
-        job = group([storageio.s(blob, inp, comp) for blob in settings.bucket_list[:20]])
+        job = group([storageio.s(blob, inp) for blob in settings.bucket_list])
+        print("job assebled")
         result = job.apply_async()
-        print(result.get())
 
 
-        #trio.run(tabulate, comp, unordered_scores)
-
-        # sort the results
-        scores = OrderedDict(
-            sorted(unordered_scores.items(), key=lambda t: t[0], reverse=True)
-        )
+        scores = sorted(result.get(), key=lambda t: t[1], reverse=True)
+        print(scores)
+        
+        trio.run(tabulate, scores[:5])
+        # TODO Gather results from running Trio
 
         # calculate running time
         t1 = datetime.now()
@@ -84,7 +79,7 @@ def index():
 
 
 @task(name="access_storage")
-def storageio(blob, inp, comp):
+def storageio(blob, inp):
     """ interact with google cloud function """
     status = 0
     max_out = 0
@@ -96,7 +91,6 @@ def storageio(blob, inp, comp):
                 print(resp.status_code, blob)
                 status = resp.status_code
                 max_out += 1
-                comp[blob[10:19]] = resp.text
     except asyncio.TimeoutError:
         print("timeout")
         pass
@@ -111,23 +105,21 @@ def test_response(resp):
         return False
 
 
-async def tabulate(comp, unordered_scores):
+async def tabulate(scores):
 
     # test for validity
-    to_sort = [(k, v) for k, v in comp.items() if test_response(v)]
-    print("Journals checked:" + str(len(to_sort)))
+    #to_sort = [(k, v) for k, v in comp.items() if test_response(v)]
+    #print("Journals checked:" + str(len(to_sort)))
 
-    # this sort is needed to reduce API calls to doaj.org
-    top = sorted(to_sort, key=lambda x: x[1], reverse=True)[:5]
 
     # make calls to the doaj API asynchronously
     async with trio.open_nursery() as nursery:
-        for idx, item in enumerate(top):
-            nursery.start_soon(titles, idx, item, unordered_scores)
+        for item in scores:
+            nursery.start_soon(titles, item)
     return
 
 
-async def titles(idx, item, unordered_scores):
+async def titles(item):
     journal_data = await asks.get(
         "https://doaj.org/api/v1/search/journals/issn%3A" + item[0]
     )
@@ -138,11 +130,9 @@ async def titles(idx, item, unordered_scores):
             title = title[:-1]
     except:
         title = "[Title lookup failed. Try finding this item by ISSN instead...]"
-    rank = idx + 1
     issn = item[0]
     score = float(item[1]) * 100
-    unordered_scores[score] = (title, issn)
-    return
+    return [score, title, issn]
 
 
 if __name__ == "__main__":
