@@ -1,7 +1,8 @@
 runtime: python37
-api_version: 1
-threadsafe: true
+service: default
 
 handlers:
+- url: /static
+  static_dir: static
 - url: /.*
-  script: compare.app
+  script: auto 

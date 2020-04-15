@@ -4,19 +4,25 @@ import asks
 import trio
 import settings
 import secrets
+try:
+    import googleclouddebugger
+    googleclouddebugger.enable()
+except ImportError:
+    pass
 from celery import Celery, group
 from celery.decorators import task
 from flask_bootstrap import Bootstrap
-from collections import OrderedDict
 from flask_wtf import FlaskForm
 from wtforms import TextAreaField, SubmitField
 from wtforms.validators import Length
 from flask import Flask, render_template, request, url_for, Response
 from datetime import datetime
 
-flask_app = Flask(__name__, static_url_path="/static")
-Bootstrap(flask_app)
-flask_app.config["SECRET_KEY"] = secrets.token_hex()
+print("libraries loaded...")
+
+app = Flask(__name__, static_url_path="/static")
+Bootstrap(app)
+app.config["SECRET_KEY"] = secrets.token_hex()
 
 celery_app = Celery("compare", backend="rpc://", broker=settings.local_broker)
 
@@ -36,9 +42,10 @@ class WebForm(FlaskForm):
     submit = SubmitField("Search")
 
 
-@flask_app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def index():
     """ display index page """
+    print("index function called...")
     form = WebForm()
     if request.method == "POST" and form.validate_on_submit():
         celery_app.control.purge()
@@ -69,7 +76,8 @@ def index():
         return render_template("index.html", form=form, errors=form.errors, output="")
 
     else:
-        celery_app.control.purge()
+        print("at render...")
+        #celery_app.control.purge()
         return render_template("index.html", form=form, errors={}, output="")
 
 
@@ -125,4 +133,4 @@ async def titles(item, output):
 
 
 if __name__ == "__main__":
-    flask_app.run(port=8000, host="127.0.0.1", debug=True)
+    app.run(port=8000, host="127.0.0.1", debug=True)
