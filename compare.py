@@ -88,20 +88,18 @@ async def storageio(blob, inp, comp):
         keepalive_timeout=5000,
     )
     try:
-        sem = asyncio.Semaphore(99)
-        async with sem:
-            async with aiohttp.ClientSession(connector=conn) as session:
-                while (status != 200) and (max_out < 10):
-                    async with session.post(
-                        settings.cloud_function, 
-                        json={"d": inp, "f": blob},
-                        verify_ssl=False
-                    ) as resp:
-                        status = resp.status
-                        max_out += 1
-                        comp[blob[10:19]] = await resp.text()
-    except asyncio.TimeoutError:
-        print("timeout")
+        async with aiohttp.ClientSession(connector=conn) as session:
+            while (status != 200) and (max_out < 10):
+                async with session.post(
+                    settings.cloud_function, 
+                    json={"d": inp, "f": blob},
+                    verify_ssl=False
+                ) as resp:
+                    status = resp.status
+                    max_out += 1
+                    comp[blob[10:19]] = await resp.text()
+    except (asyncio.TimeoutError, aiohttp.client_exceptions.ClientConnectorError):
+        print("passing")
         pass
     return
 
