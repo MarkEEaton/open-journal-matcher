@@ -94,9 +94,9 @@ async def storageio(blob, inp, comp):
                 while (status != 200) and (max_out < 10):
                     async with session.post(
                         settings.cloud_function, 
-                        json={"d": inp, "f": blob}
+                        json={"d": inp, "f": blob},
+                        verify_ssl=False
                     ) as resp:
-                        print(resp.status, blob)
                         status = resp.status
                         max_out += 1
                         comp[blob[10:19]] = await resp.text()
