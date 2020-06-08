@@ -20,7 +20,6 @@ app = Flask(__name__, static_url_path="/static")
 Bootstrap(app)
 app.config["SECRET_KEY"] = secrets.token_hex()
 
-READ = 0
 
 class WebForm(FlaskForm):
     """ for validation """
@@ -42,8 +41,6 @@ def index():
     """ display index page """
     form = WebForm()
     if request.method == "POST" and form.validate_on_submit():
-        global READ
-        READ = 0
         comp = {}
         unordered_scores = {}
         inp = form.web_abstract_var.data
@@ -70,16 +67,6 @@ def index():
 
     else:
         return render_template("index.html", form=form, errors={}, output="")
-
-
-@app.route('/progress')
-def progress():
-    def generate():
-        global READ
-        while READ <= 100:
-            return "data:" + str(READ) + "\n\n" + "retry: 5\n\n"
-
-    return Response(generate(), mimetype='text/event-stream')
 
 
 async def parent(inp, comp):
@@ -116,8 +103,6 @@ async def storageio(blob, inp, comp):
     except asyncio.TimeoutError:
         print("timeout")
         pass
-    global READ
-    READ += 1 / len(settings.bucket_list) * 100
     return
 
 
