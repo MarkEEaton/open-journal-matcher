@@ -81,26 +81,22 @@ async def storageio(blob, inp, comp):
     """ interact with google cloud function """
     status = 0
     max_out = 0
-    conn = aiohttp.TCPConnector(
-        family=socket.AF_INET,
-        ssl=False,
-        use_dns_cache=False,
-        keepalive_timeout=5000,
-    )
-    try:
-        async with aiohttp.ClientSession(connector=conn) as session:
-            while (status != 200) and (max_out < 10):
+    error = False
+    async with aiohttp.ClientSession() as session:
+        while ((status != 200) or (error == True)) and (max_out < 10):
+            try:
                 async with session.post(
                     settings.cloud_function, 
-                    json={"d": inp, "f": blob},
-                    verify_ssl=False
+                    json={"d": inp, "f": blob}
                 ) as resp:
                     status = resp.status
                     max_out += 1
                     comp[blob[10:19]] = await resp.text()
-    except (asyncio.TimeoutError, aiohttp.client_exceptions.ClientConnectorError):
-        print("passing")
-        pass
+                    error = False
+            except (asyncio.TimeoutError, aiohttp.client_exceptions.ClientConnectorError):
+                print("passing")
+                error = True
+                pass
     return
 
 
