@@ -134,7 +134,7 @@ async def titles(idx, item, unordered_scores):
         if title[-1:] == " ":
             title = title[:-1]
     except:
-        title = "[Title lookup failed. Try finding this item by ISSN instead...]"
+        title = "Title lookup failed. Try finding this item by ISSN instead.."
     rank = idx + 1
     issn = item[0]
     score = float(item[1]) * 100
