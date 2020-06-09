@@ -3,11 +3,11 @@
 		width: 100%;
 		background-color: #999;
 		display: flex;
-		justify-content: center;
 		align-items: center;
 }
 
 #spacer {
+		margin-left: 65px;
 		background-color: black;
 		height: 100px;
 		width: 6px;
