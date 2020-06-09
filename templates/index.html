@@ -6,6 +6,12 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> 
+		<script>
+			function show() {
+				document.getElementById("waiting").style.display = '';
+				document.getElementById("results").style.display = 'none';
+			}
+		</script>
     </head>
     <body>
 		<div class="wrapper">
@@ -19,7 +25,7 @@
 			</div>
 			<div class="col-1" style="max-width:100%">
 				<h3 class="pad">Enter your abstract here:</h3>
-				<form class="form-group" action="" method="POST" novalidate>
+				<form class="form-group" action="" method="POST" novalidate onsubmit="show()">
 					{{ form.hidden_tag() }}
 					<div class="pad">
 						<textarea class="pad form-control" style="width:100%; height:300px;" id="web_abstract_var" placeholder="Enter your abstract here..." name="web_abstract_var"></textarea> 
@@ -30,14 +36,17 @@
 			<div class="col-2" style="max-width:100%">
 				<h3 style="padding: 50px;">Your results...</h3>
 				<ul class="pad">
-					{% for item in output %}
-						<li><strong>{{ "{0:.2f}".format(item) }}</strong> : {{ output[item][0] }}.  ISSN: {{ output[item][1] }}</li>
-					{% endfor %}
-					{% if errors.get('web_abstract_var')[0] %}
-						<div style="margin-top:-50px;" class="alert alert-danger" role="alert"><strong>Error!</strong>
-							{{ errors.get('web_abstract_var')[0] }}
-						</div>
-					{% endif %}
+					<div style="margin-top:-50px; width:max-content; background-color:#eee; border:#bbb; display:none;" id="waiting" class="alert alert-secondary" role="alert">This will take <strong>1-3 minutes</strong>. Maybe a good time to refill your coffee?</div>
+					<div id="results" style="margin-top:-50px;">
+						{% for item in output %}
+							<li><strong>{{ "{0:.2f}".format(item) }}</strong> : {{ output[item][0] }}.  ISSN: {{ output[item][1] }}</li>
+						{% endfor %}
+						{% if errors.get('web_abstract_var')[0] %}
+							<div style="margin-top:-50px;" class="alert alert-danger" role="alert"><strong>Error!</strong>
+								{{ errors.get('web_abstract_var')[0] }}
+							</div>
+						{% endif %}
+					</div>
 				</ul>
 			</div>
 		</div>

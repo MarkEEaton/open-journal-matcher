@@ -45,7 +45,7 @@ ul {
 	}
 
 	.col-1 {
-			background-color: #ccc;
+			background-color: #eee;
 			grid-row: 2 / 3;
 			grid-column: 1 / 2;
 			padding-bottom:80px;
@@ -84,7 +84,7 @@ ul {
 	.col-1 {
 			grid-row: 2 / 3;
 			grid-column: 1 / 2;
-			background-color: #ccc;
+			background-color: #eee;
 			padding-bottom: 30px;
 	}
 

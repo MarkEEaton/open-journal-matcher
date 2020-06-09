@@ -94,7 +94,6 @@ async def storageio(blob, inp, comp):
                     comp[blob[10:19]] = await resp.text()
                     error = False
             except (asyncio.TimeoutError, aiohttp.client_exceptions.ClientConnectorError):
-                print("passing")
                 error = True
                 pass
     return
