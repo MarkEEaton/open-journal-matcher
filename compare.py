@@ -31,7 +31,7 @@ class WebForm(FlaskForm):
                 max=10000,
                 message="Your abstract must be between 25 and 10000 characters.",
             )
-        ],
+        ]
     )
     submit = SubmitField("Search")
 
@@ -70,9 +70,7 @@ def index():
 
 async def parent(inp, comp):
     """ manage the async work """
-    await asyncio.gather(
-        *[storageio(blob, inp, comp) for blob in settings.bucket_list]
-    )
+    await asyncio.gather(*[storageio(blob, inp, comp) for blob in settings.bucket_list])
     return
 
 
@@ -85,14 +83,16 @@ async def storageio(blob, inp, comp):
         while ((status != 200) or (error == True)) and (max_out < 10):
             try:
                 async with session.post(
-                    settings.cloud_function, 
-                    json={"d": inp, "f": blob}
+                    settings.cloud_function, json={"d": inp, "f": blob}
                 ) as resp:
                     status = resp.status
                     max_out += 1
                     comp[blob[10:19]] = await resp.text()
                     error = False
-            except (asyncio.TimeoutError, aiohttp.client_exceptions.ClientConnectorError):
+            except (
+                asyncio.TimeoutError,
+                aiohttp.client_exceptions.ClientConnectorError,
+            ):
                 error = True
                 pass
     return
