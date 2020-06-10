@@ -80,7 +80,7 @@ async def storageio(blob, inp, comp):
     max_out = 0
     error = False
     async with aiohttp.ClientSession() as session:
-        while ((status != 200) or (error == True)) and (max_out < 10):
+        while ((status != 200) or (error == True)) and (max_out < 15):
             try:
                 async with session.post(
                     settings.cloud_function, json={"d": inp, "f": blob}
