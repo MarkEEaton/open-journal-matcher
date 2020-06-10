@@ -62,7 +62,7 @@
 							<li><strong>{{ "{0:.2f}".format(item) }}</strong> : {{ output[item][0] }}.  ISSN: {{ output[item][1] }}</li>
 						{% endfor %}
 						{% if errors.get('web_abstract_var')[0] %}
-							<div style="margin-top:-50px;" class="alert alert-danger" role="alert"><strong>Error!</strong>
+							<div style="margin-top:-50px; width:max-content" class="alert alert-danger" role="alert"><strong>Error!</strong>
 								{{ errors.get('web_abstract_var')[0] }}
 							</div>
 						{% endif %}

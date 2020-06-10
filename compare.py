@@ -92,6 +92,7 @@ async def storageio(blob, inp, comp):
             except (
                 asyncio.TimeoutError,
                 aiohttp.client_exceptions.ClientConnectorError,
+                aiohttp.client_exceptions.ServerDisconnectedError,
             ):
                 error = True
                 pass
