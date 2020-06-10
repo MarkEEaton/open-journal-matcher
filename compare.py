@@ -44,7 +44,6 @@ def index():
         comp = {}
         unordered_scores = {}
         inp = form.web_abstract_var.data
-        print(inp)
         t0 = datetime.now()
 
         # do the work
