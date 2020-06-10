@@ -10,6 +10,14 @@
 			function show() {
 				document.getElementById("waiting").style.display = '';
 				document.getElementById("results").style.display = 'none';
+				document.getElementById("docs").style.display = 'none';	
+			};
+            function help() {
+				document.getElementById("docs").style.display = '';
+			    document.getElementById("results").style.display = 'none';	
+				if (document.getElementById("waiting").style.display == '') {
+					document.getElementById("docs").style.margin = 0;
+				};
 			}
 		</script>
     </head>
@@ -20,7 +28,7 @@
 				<div id="how">
 					<h1>Open Journal Matcher</h1>
 					This tool matches a draft abstract with the best-matching open access journals. Paste your abstract below.<br />
-					How does it work? <a href="">Find out more</a>.
+					How does it work? <a onClick="help()" style="color:#0000EE; text-decoration:underline;">Find out more</a>.
 				</div>
 			</div>
 			<div class="col-1" style="max-width:100%">
@@ -36,7 +44,19 @@
 			<div class="col-2" style="max-width:100%">
 				<h3 style="padding: 50px;">Your results...</h3>
 				<ul class="pad">
-					<div style="margin-top:-50px; width:max-content; background-color:#eee; border:#bbb; display:none;" id="waiting" class="alert alert-secondary" role="alert">This will take <strong>1-3 minutes</strong>. Maybe a good time to refill your coffee?</div>
+					<div style="margin-top:-50px; width:max-content; background-color:#eee; border:#eee; display:none;" id="waiting" class="alert alert-secondary" role="alert">This will take <strong>1-3 minutes</strong>. Maybe a good time to refill your coffee?</div>
+					<div id="docs" style="margin-top:-50px; display:none; background-color:#eee; border:#eee;" class="alert alert-secondary">
+							This tool compares the similarity of user-submitted abstracts with abstracts from the <a href="https://www.doaj.org">Directory of Open Access Journals</a>, 
+							and provides some top matching journals. 
+							It is not meant to be forensic (it won’t tell you what journal an abstract came from), but rather it is meant to be serendipitous (maybe you’ll discover a new 
+							journal that you like!).<br><br>
+							While there are other journal matching projects out there, to my knowledge none of them are fully open source. All of the code for this project is openly licensed.
+							The <a href="https://github.com/markeeaton/open-journal-matcher">code</a> powering this site is available on GitHub</a> (with an MIT license), as is the code for 
+							<a href="https://github.com/explosion/spacy">spaCy</a>, the underlying matching algorithm (also with an MIT license), 
+							and of course the journals in the Directory of Open Access Journals are openly licensed as well.<br><br> 
+							This site was built by Mark Eaton with the support of a Google Cloud Platform Credit grant. The computationally intensive data processing relies 
+							on a "serverless" Google Cloud Function, while this web application runs on PythonAnywhere.
+					</div>
 					<div id="results" style="margin-top:-50px;">
 						{% for item in output %}
 							<li><strong>{{ "{0:.2f}".format(item) }}</strong> : {{ output[item][0] }}.  ISSN: {{ output[item][1] }}</li>
