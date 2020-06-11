@@ -44,7 +44,7 @@
 			<div class="col-2" style="max-width:100%">
 				<h3 style="padding: 50px;">Your results...</h3>
 				<ul class="pad">
-					<div style="margin-top:-50px; width:max-content; background-color:#eee; border:#eee; display:none;" id="waiting" class="alert alert-secondary" role="alert">This will take <strong>1 to 3 minutes</strong>. Maybe a good time to refill your coffee?</div>
+					<div style="margin-top:-50px; background-color:#eee; border:#eee; display:none;" id="waiting" class="alert alert-secondary" role="alert">This will take <strong>1 to 3 minutes</strong>. Maybe a good time to refill your coffee?</div>
 					<div id="docs" style="margin-top:-50px; display:none; background-color:#eee; border:#eee;" class="alert alert-secondary">
 							This tool compares the similarity of user-submitted abstracts with abstracts from the <a href="https://www.doaj.org">Directory of Open Access Journals</a>, 
 							and provides a list of the 5 top matching journals. 
@@ -62,12 +62,13 @@
 							<li><strong>{{ "{0:.2f}".format(item) }}</strong> : {{ output[item][0] }}.  ISSN: {{ output[item][1] }}</li>
 						{% endfor %}
 						{% if errors.get('web_abstract_var')[0] %}
-							<div style="margin-top:-50px; width:max-content" class="alert alert-danger" role="alert"><strong>Error!</strong>
+							<div style="margin-top:-50px;" class="alert alert-danger" role="alert"><strong>Error!</strong>
 								{{ errors.get('web_abstract_var')[0] }}
 							</div>
 						{% endif %}
 					</div>
 				</ul>
+				<div style="height:50px;"></div>
 			</div>
 		</div>
     </body>

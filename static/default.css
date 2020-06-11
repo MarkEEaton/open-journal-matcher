@@ -31,7 +31,7 @@ ul {
 }
 
 
-@media (min-width:781px) { 
+@media (min-width:800px) { 
 	.wrapper {
 		height: 100vh;
 		display: grid;
@@ -65,7 +65,7 @@ ul {
 	}
 }
 
-@media (max-width: 780px) {
+@media (max-width:800px) {
 	.wrapper{
 		height: 100vh;
 		display: grid;
