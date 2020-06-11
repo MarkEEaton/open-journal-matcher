@@ -11,6 +11,7 @@
 				document.getElementById("waiting").style.display = '';
 				document.getElementById("results").style.display = 'none';
 				document.getElementById("docs").style.display = 'none';	
+				window.location.hash = 'jump';
 			};
 			function help() {
 				document.getElementById("docs").style.display = '';
@@ -41,7 +42,7 @@
 					</div>
 				</form>
 			</div>
-			<div class="col-2" style="max-width:100%">
+			<div class="col-2" style="max-width:100%" id="jump">
 				<h3 style="padding: 50px;">Your results...</h3>
 				<ul class="pad">
 					<div style="margin-top:-50px; background-color:#eee; border:#eee; display:none;" id="waiting" class="alert alert-secondary" role="alert">This will take <strong>1 to 3 minutes</strong>. Maybe a good time to refill your coffee?</div>
