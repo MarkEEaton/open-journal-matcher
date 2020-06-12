@@ -17,6 +17,10 @@
 		margin: 15px;
 }
 
+#finger {
+		cursor: pointer;
+}
+
 input {
 		width: inherit;
 		height: inherit;
