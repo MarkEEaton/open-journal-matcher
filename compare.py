@@ -27,9 +27,9 @@ class WebForm(FlaskForm):
     web_abstract_var = TextAreaField(
         validators=[
             Length(
-                min=25,
+                min=150,
                 max=10000,
-                message="Your abstract must be between 25 and 10000 characters.",
+                message="Your abstract must be between 150 and 10000 characters.",
             )
         ]
     )
