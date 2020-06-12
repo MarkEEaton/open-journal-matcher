@@ -13,7 +13,7 @@ from collections import OrderedDict
 from flask_wtf import FlaskForm
 from wtforms import TextAreaField, SubmitField
 from wtforms.validators import Length
-from flask import Flask, render_template, request, url_for, Response
+from flask import Flask, render_template, request, url_for, Response, abort
 from datetime import datetime
 
 app = Flask(__name__, static_url_path="/static")
@@ -83,9 +83,11 @@ async def storageio(blob, inp, comp):
         while ((status != 200) or (error == True)) and (max_out < 15):
             try:
                 async with session.post(
-                    settings.cloud_function, json={"d": inp, "f": blob}
+                    settings.cloud_function, json={"d": inp, "f": blob, "t": settings.token}
                 ) as resp:
                     status = resp.status
+                    if status == 403:
+                        abort(403)
                     max_out += 1
                     comp[blob[10:19]] = await resp.text()
                     error = False
