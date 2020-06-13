@@ -15,7 +15,7 @@ async def doaj_trio(request):
         if data["t"] == settings.token:
             async with Session() as session:
                 storage = Storage(session=session)
-                bucket = storage.get_bucket("doaj")
+                bucket = storage.get_bucket(bucket_name)
                 blob = data["f"]
                 print(blob)
                 blob_object = await bucket.get_blob(blob)
