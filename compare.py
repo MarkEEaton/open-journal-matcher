@@ -1,6 +1,5 @@
 """ run the comparisons using asyncio """
 
-import socket
 import time
 import asyncio
 import asks
