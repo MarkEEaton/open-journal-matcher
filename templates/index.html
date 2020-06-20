@@ -12,6 +12,7 @@
 				document.getElementById("results").style.display = 'none';
 				document.getElementById("docs").style.display = 'none';	
 				window.location.hash = 'jump';
+				history.replaceState(null, null, ' ');
 			};
 			function help() {
 				document.getElementById("docs").style.display = '';
@@ -20,6 +21,7 @@
 					document.getElementById("docs").style.margin = 0;
 				};
 				window.location.hash = 'jump';
+				history.replaceState(null, null, ' ');
 			};
 			function hideDocs() {
 				document.getElementById("docs").style.display = 'none';
@@ -67,8 +69,8 @@
 							and provides a list of the 5 top matching journals. 
 							It is not meant to be forensic (it won’t tell you what journal an abstract came from), but rather it is meant to be serendipitous (maybe you’ll discover a new 
 							journal that you like!).<br><br>
-							While other journal matching projects exist, to my knowledge none of them are both fully open source, and cover all disciplines. All of the code for this project is openly licensed.
-							The code powering this application is available <a href="https://github.com/markeeaton/open-journal-matcher">on Github</a>, 
+							While other journal matching projects exist, to my knowledge none of them are both fully open source, and cover all disciplines. 
+							All of the code for this project is openly licensed and is available <a href="https://github.com/markeeaton/open-journal-matcher">on Github</a>, 
 							as is the code for the underlying matching algorithm, <a href="https://github.com/explosion/spacy">spaCy</a>. Both use an MIT license. 
 							Moreover, the matcher only recommends open access journals from the Directory of Open Access Journals.<br><br> 
 							This application was built by Mark Eaton with the support of a Google Cloud Platform Credit grant. The computationally intensive data processing runs on 
