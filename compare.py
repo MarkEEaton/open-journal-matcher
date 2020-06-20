@@ -28,7 +28,7 @@ class WebForm(FlaskForm):
             Length(
                 min=150,
                 max=10000,
-                message="Your abstract must be between 150 and 10000 characters.",
+                message="Your abstract must be between 150 and 10,000 characters.",
             )
         ]
     )
