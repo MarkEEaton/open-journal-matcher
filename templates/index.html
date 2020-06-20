@@ -20,7 +20,12 @@
 					document.getElementById("docs").style.margin = 0;
 				};
 				window.location.hash = 'jump';
-			}
+			};
+			function hideDocs() {
+				document.getElementById("docs").style.display = 'none';
+				document.getElementById("results").style.display = '';
+				document.getElementById("error").style.display = 'none';
+			};
 		</script>
     </head>
     <body>
@@ -29,7 +34,7 @@
 				<div id="spacer"></div>
 				<div id="how">
 					<h1>Open Journal Matcher</h1>
-					This tool matches a draft abstract with the best-matching open access journals. Paste your abstract below.<br />
+					This tool matches a draft abstract with the best-matching open access journals. Find somewhere to submit your work by pasting your abstract below!<br />
 					How does it work? <a onClick="help()" style="color:#007BFF;" onmouseover="" id="finger">Find out more</a>.
 				</div>
 			</div>
@@ -53,6 +58,11 @@
 						<span style="margin-left:6px;">This will take <strong>1 to 3 minutes</strong>. Maybe a good time to refill your coffee?</span>
 					</div>
 					<div id="docs" style="margin-top:-50px; display:none; background-color:#eee; border:#eee;" class="alert alert-secondary">
+							<span style="float:right; display:inline-block">
+								<button type="button" class="close" aria-label="Close" onclick="hideDocs()">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</span>
 							This tool compares the similarity of user-submitted abstracts with abstracts from the <a href="https://www.doaj.org">Directory of Open Access Journals</a>, 
 							and provides a list of the 5 top matching journals. 
 							It is not meant to be forensic (it won’t tell you what journal an abstract came from), but rather it is meant to be serendipitous (maybe you’ll discover a new 
@@ -74,7 +84,7 @@
 							<li><strong>{{ "{0:.2f}".format(item) }}</strong> : {{ output[item][0] }}.  {{ output[item][1] }}</li>
 						{% endfor %}
 						{% if errors.get('web_abstract_var')[0] %}
-							<div style="margin-top:-50px;" class="alert alert-danger" role="alert"><strong>Error!</strong>
+							<div id="error" style="margin-top:-50px;" class="alert alert-danger" role="alert"><strong>Error!</strong>
 								{{ errors.get('web_abstract_var')[0] }}
 							</div>
 						{% endif %}
