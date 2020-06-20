@@ -66,8 +66,12 @@
 							This tool will only work with abstracts written in English.
 					</div>
 					<div id="results" style="margin-top:-50px;">
+						{% if output %}
+							<li><strong>Score</strong> : Title of Journal. ISSN</li>
+							<hr>
+						{% endif %}
 						{% for item in output %}
-							<li><strong>{{ "{0:.2f}".format(item) }}</strong> : {{ output[item][0] }}.  ISSN: {{ output[item][1] }}</li>
+							<li><strong>{{ "{0:.2f}".format(item) }}</strong> : {{ output[item][0] }}.  {{ output[item][1] }}</li>
 						{% endfor %}
 						{% if errors.get('web_abstract_var')[0] %}
 							<div style="margin-top:-50px;" class="alert alert-danger" role="alert"><strong>Error!</strong>
