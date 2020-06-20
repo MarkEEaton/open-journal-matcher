@@ -83,7 +83,15 @@
 							<hr>
 						{% endif %}
 						{% for item in output %}
-							<li><strong>{{ "{0:.2f}".format(item) }}</strong> : {{ output[item][0] }}.  {{ output[item][1] }}</li>
+							<li>
+								<strong>{{ "{0:.2f}".format(item) }}</strong> : 
+								{% if output[item][2] %}
+									<a href="{{ output[item][2] }}">{{ output[item][0] }}</a>.
+								{% else %}
+									{{ output[item][0] }}.
+								{% endif %}
+								{{ output[item][1] }}
+							</li>
 						{% endfor %}
 						{% if errors.get('web_abstract_var')[0] %}
 							<div id="error" style="margin-top:-50px;" class="alert alert-danger" role="alert"><strong>Error!</strong>

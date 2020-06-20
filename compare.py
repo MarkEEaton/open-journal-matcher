@@ -82,7 +82,8 @@ async def storageio(blob, inp, comp):
         while ((status != 200) or (error == True)) and (max_out < 15):
             try:
                 async with session.post(
-                    settings.cloud_function, json={"d": inp, "f": blob, "t": settings.token}
+                    settings.cloud_function,
+                    json={"d": inp, "f": blob, "t": settings.token},
                 ) as resp:
                     status = resp.status
                     if status == 403:
@@ -135,10 +136,13 @@ async def titles(idx, item, unordered_scores):
             title = title[:-1]
     except:
         title = "Title lookup failed. Try finding this item by ISSN instead.."
-    rank = idx + 1
+    try:
+        url = journal_json["results"][0]["bibjson"]["link"][0]["url"]
+    except:
+        url = ""
     issn = item[0]
     score = float(item[1]) * 100
-    unordered_scores[score] = (title, issn)
+    unordered_scores[score] = (title, issn, url)
     return
 
 
