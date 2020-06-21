@@ -5,13 +5,13 @@ import json
 
 output = []
 
-with open("journallist.csv", newline="") as csvfile:
+with open("journallist-June2020.csv", newline="") as csvfile:
     data = csv.reader(csvfile)
     for row in data:
         try:
-            english = row[32][:7].lower()
+            english = row[30][:7].lower()
             if english == "english":
-                _ = row[32][
+                _ = row[30][
                     7
                 ]  # do this to throw an index error if the field is longer than 'english'
         except IndexError:
@@ -22,5 +22,5 @@ with open("journallist.csv", newline="") as csvfile:
             else:
                 print("no issn")
 
-with open("issnlist.txt", "w") as issnfile:
+with open("issnlist-June2020.txt", "w") as issnfile:
     issnfile.write(json.dumps(output))

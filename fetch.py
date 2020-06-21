@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 def fetch(issn):
     base_url = "https://doaj.org/api/v1/search/articles/issn%3A"
-    pagesize = "?pageSize=100"
+    pagesize = "?pageSize=100&sort=year%3Adesc"
 
     data = requests.get(base_url + issn + pagesize)
     print(
@@ -46,11 +46,14 @@ def parse(articles):
 
 
 if __name__ == "__main__":
-    with open("issnlist.txt") as issnfile:
+    with open("issnlist-June2020.txt") as issnfile:
         issns = json.loads(issnfile.read())
 
     for idx, issn in enumerate(issns):
         articles = fetch(issn)
         abstracts = parse(articles)
-        with open("abstracts/" + issn + ".txt", "w") as abstractfile:
-            abstractfile.write(json.dumps(abstracts))
+        if abstracts == "":
+            pass
+        else:
+            with open("abstracts-June2020/" + issn + ".txt", "w") as abstractfile:
+                abstractfile.write(json.dumps(abstracts))
