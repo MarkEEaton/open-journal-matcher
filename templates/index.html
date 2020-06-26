@@ -3,6 +3,7 @@
     <head>
         <title>Open Journal Matcher</title>
 		<link href="/static/default.css" rel="stylesheet" type="text/css">
+		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> 
 		<script>
@@ -84,12 +85,7 @@
 						{% for item in output %}
 							<li>
 								<strong>{{ "{0:.2f}".format(item) }}</strong> : 
-								{% if output[item][2] %}
-									<a href="{{ output[item][2] }}">{{ output[item][0] }}</a>.
-								{% else %}
-									{{ output[item][0] }}.
-								{% endif %}
-								{{ output[item][1] }}
+								{{ output[item][0] }}. {{ output[item][1] }}
 							</li>
 						{% endfor %}
 						{% if errors.get('web_abstract_var')[0] %}
