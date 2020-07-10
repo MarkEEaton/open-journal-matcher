@@ -1,7 +1,7 @@
 #top {
 		margin: 0 auto;
 		width: 100%;
-		background-color: #bbb;
+		background-color: #cdcdcd;
 		display: flex;
 		align-items: center;
 }
@@ -11,6 +11,22 @@
 		background-color: black;
 		height: 100px;
 		width: 6px;
+}
+
+.h2, h2, .head2 {
+		font-size:1.75rem;
+}
+
+.blue, a, #finger {
+		color:#006AEE;
+}
+
+.blue, a {
+		color:#006AEE;
+}
+
+label, #label {
+		margin-bottom:0rem;
 }
 
 #how {
@@ -27,7 +43,7 @@ input {
 }
 
 .col-2 {
-		background-color: #ccccff;
+		background-color: #ddddff;
 }
 
 ul {

@@ -37,11 +37,13 @@
 				<div id="how">
 					<h1>Open Journal Matcher</h1>
 					This tool matches a draft abstract with the best-matching open access journals. Find somewhere to submit your work by pasting your abstract below!<br />
-					How does it work? <a onClick="help()" style="color:#007BFF;" onmouseover="" id="finger">Find out more</a>.
+					How does it work? <a onClick="help()" onmouseover="" id="finger" class="blue">Find out more</a>.
 				</div>
 			</div>
 			<div class="col-1" style="max-width:100%">
-				<h3 class="pad">Enter your abstract here:</h3>
+				<h2 class="pad head2">
+					<label id="label" for="web_abstract_var">Enter your abstract here:<label>
+				</h2>
 				<form class="form-group" action="" method="POST" novalidate onsubmit="show()">
 					{{ form.hidden_tag() }}
 					<div class="pad">
@@ -51,7 +53,7 @@
 				</form>
 			</div>
 			<div class="col-2" style="max-width:100%" id="jump">
-				<h3 style="padding: 50px;">Your results...</h3>
+				<h2 style="padding: 50px;" class="head2">Your results...</h2>
 				<ul class="pad">
 					<div style="margin-top:-50px; background-color:#eee; border:#eee; display:none;" id="waiting" class="alert alert-secondary" role="alert">
 						<div class="spinner-border spinner-border-sm mb-1" role="status">
@@ -65,16 +67,16 @@
 									<span aria-hidden="true">&times;</span>
 								</button>
 							</span>
-							This tool compares the similarity of user-submitted abstracts with abstracts from the <a href="https://www.doaj.org">Directory of Open Access Journals</a>, 
+							This tool compares the similarity of user-submitted abstracts with abstracts from the <a class="blue" href="https://www.doaj.org">Directory of Open Access Journals</a>, 
 							and provides a list of the 5 top matching journals. 
 							It is not meant to be forensic (it won’t tell you what journal an abstract came from), but rather it is meant to be serendipitous (maybe you’ll discover a new 
 							journal that you like!).<br><br>
-							While other journal matching projects exist, to my knowledge none of them are both fully open source, and cover all disciplines. 
-							All of the code for this project is openly licensed and is available <a href="https://github.com/markeeaton/open-journal-matcher">on Github</a>, 
-							as is the code for the underlying matching algorithm, <a href="https://github.com/explosion/spacy">spaCy</a>. Both use an MIT license. 
-							Moreover, the matcher only recommends open access journals from the Directory of Open Access Journals.<br><br> 
-							This application was built by Mark Eaton with the support of a Google Cloud Platform Credit grant. The computationally intensive data processing runs on 
-							a "serverless" Google Cloud Function.<br><br>
+							While other journal matching projects exist, to my knowledge none of them are fully open source and fully interdisciplinary. 
+							All of the code for this project is openly licensed and is available <a class="blue" href="https://github.com/markeeaton/open-journal-matcher">on Github</a>, 
+							as is the code for the underlying matching algorithm, <a class="blue" href="https://github.com/explosion/spacy">spaCy</a>. Both use an MIT license. 
+							The matcher's recommendations are also all open access.<br><br> 
+							This application was built by <a class="blue" href="https://www.kbcc.cuny.edu/facultyprofiles/markeaton.html">Mark Eaton</a> with the support of a Google Cloud 
+							Platform Credit grant. The computationally intensive data processing runs on a "serverless" Google Cloud Function.<br><br>
 							This tool will only work with abstracts written in English.
 					</div>
 					<div id="results" style="margin-top:-50px;">
