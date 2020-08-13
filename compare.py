@@ -98,6 +98,9 @@ async def storageio(blob, inp, comp):
             ):
                 error = True
                 pass
+            except aiohttp.client_exceptions.ClientOSError:
+                print("ClientOSError")
+                return
     return
 
 

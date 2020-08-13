@@ -5,18 +5,19 @@
 		<link href="/static/default.css" rel="stylesheet" type="text/css">
 		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> 
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="icon" href="data:,">
 		<script>
 			function show() {
 				document.getElementById("waiting").style.display = '';
 				document.getElementById("results").style.display = 'none';
-				document.getElementById("docs").style.display = 'none';	
+				document.getElementById("docs").style.display = 'none';
 				window.location.hash = 'jump';
 				history.replaceState(null, null, ' ');
 			};
 			function help() {
 				document.getElementById("docs").style.display = '';
-				document.getElementById("results").style.display = 'none';	
+				document.getElementById("results").style.display = 'none';
 				if (document.getElementById("waiting").style.display == '') {
 					document.getElementById("docs").style.margin = 0;
 				};
@@ -47,7 +48,7 @@
 				<form class="form-group" action="" method="POST" novalidate onsubmit="show()">
 					{{ form.hidden_tag() }}
 					<div class="pad">
-						<textarea class="pad form-control" id="web_abstract_var" placeholder="Enter your abstract here..." name="web_abstract_var"></textarea> 
+						<textarea class="pad form-control" id="web_abstract_var" placeholder="Enter your abstract here..." name="web_abstract_var"></textarea>
 						<div style="width:200px; height:50px;" class="modified-pad">{{ form.submit() }}</div>
 					</div>
 				</form>
@@ -67,15 +68,15 @@
 									<span aria-hidden="true">&times;</span>
 								</button>
 							</span>
-							This tool compares the similarity of user-submitted abstracts with abstracts from the <a class="blue" href="https://www.doaj.org">Directory of Open Access Journals</a>, 
-							and provides a list of the 5 top matching journals. 
-							It is not meant to be forensic (it won’t tell you what journal an abstract came from), but rather it is meant to be serendipitous (maybe you’ll discover a new 
+							This tool compares the similarity of user-submitted abstracts with abstracts from the <a class="blue" href="https://www.doaj.org">Directory of Open Access Journals</a>,
+							and provides a list of the 5 top matching journals.
+							It is not meant to be forensic (it won’t tell you what journal an abstract came from), but rather it is meant to be serendipitous (maybe you’ll discover a new
 							journal that you like!).<br><br>
-							While other journal matching projects exist, to my knowledge none of them are fully open source and fully interdisciplinary. 
-							All of the code for this project is openly licensed and is available <a class="blue" href="https://github.com/markeeaton/open-journal-matcher">on Github</a>, 
-							as is the code for the underlying matching algorithm, <a class="blue" href="https://github.com/explosion/spacy">spaCy</a>. Both use an MIT license. 
-							The matcher's recommendations are also all open access.<br><br> 
-							This application was built by <a class="blue" href="https://www.kbcc.cuny.edu/facultyprofiles/markeaton.html">Mark Eaton</a> with the support of a Google Cloud 
+							While other journal matching projects exist, to my knowledge none of them are fully open source and fully interdisciplinary.
+							All of the code for this project is openly licensed and is available <a class="blue" href="https://github.com/markeeaton/open-journal-matcher">on Github</a>,
+							as is the code for the underlying matching algorithm, <a class="blue" href="https://github.com/explosion/spacy">spaCy</a>. Both use an MIT license.
+							The matcher's recommendations are also all open access.<br><br>
+							This application was built by <a class="blue" href="https://www.kbcc.cuny.edu/facultyprofiles/markeaton.html">Mark Eaton</a> with the support of a Google Cloud
 							Platform Credit grant. The computationally intensive data processing runs on a "serverless" Google Cloud Function.<br><br>
 							This tool will only work with abstracts written in English.
 					</div>
@@ -86,7 +87,7 @@
 						{% endif %}
 						{% for item in output %}
 							<li>
-								<strong>{{ "{0:.2f}".format(item) }}</strong> : 
+								<strong>{{ "{0:.2f}".format(item) }}</strong> :
 								{{ output[item][0] }}. {{ output[item][1] }}
 							</li>
 						{% endfor %}
