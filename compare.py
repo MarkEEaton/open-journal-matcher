@@ -6,7 +6,6 @@ import asks
 import trio
 import settings
 import aiohttp
-import secrets
 from flask_bootstrap import Bootstrap
 from collections import OrderedDict
 from flask_wtf import FlaskForm
@@ -17,7 +16,7 @@ from datetime import datetime
 
 app = Flask(__name__, static_url_path="/static")
 Bootstrap(app)
-app.config["SECRET_KEY"] = secrets.token_hex()
+app.config["SECRET_KEY"] = settings.csrf
 
 
 class WebForm(FlaskForm):
