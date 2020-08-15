@@ -13,7 +13,7 @@ with open("journallist-June2020.csv", newline="") as csvfile:
             if english == "english":
                 _ = row[30][
                     7
-                ]  # do this to throw an index error if the field is longer than 'english'
+                ]  # throw an index error if the field is only 'english', nothing more
         except IndexError:
             if row[4]:
                 output.append(row[4])
