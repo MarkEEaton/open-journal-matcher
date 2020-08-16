@@ -3,6 +3,7 @@
 import time
 import asyncio
 import asks
+import regex
 import trio
 import settings
 import aiohttp
@@ -128,10 +129,16 @@ async def tabulate(comp, unordered_scores):
 
 
 async def titles(idx, item, unordered_scores):
+    if regex.match(r"^[0-9]{4}-[0-9]{3}[0-9Xx]$", item[0]):
+        issn = item[0]
+    else:
+        raise Exception("ISSN does not match regex")
+
     journal_data = await asks.get(
         "https://doaj.org/api/v1/search/journals/issn%3A" + item[0]
     )
     journal_json = journal_data.json()
+
     try:
         title = journal_json["results"][0]["bibjson"]["title"]
         if title[-1:] == " ":
@@ -142,7 +149,6 @@ async def titles(idx, item, unordered_scores):
         url = journal_json["results"][0]["bibjson"]["link"][0]["url"]
     except:
         url = ""
-    issn = item[0]
     score = float(item[1]) * 100
     unordered_scores[score] = (title, issn, url)
     return
