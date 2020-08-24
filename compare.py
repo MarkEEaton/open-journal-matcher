@@ -1,12 +1,12 @@
 """ run the comparisons using asyncio """
 
-import time
 import asyncio
 import asks
 import regex
 import trio
 import settings
 import aiohttp
+from time import sleep
 from flask_bootstrap import Bootstrap
 from collections import OrderedDict
 from flask_wtf import FlaskForm
@@ -78,38 +78,35 @@ def add_security_headers(resp):
 
 async def parent(inp, comp):
     """ manage the async work """
-    await asyncio.gather(*[storageio(blob, inp, comp) for blob in settings.bucket_list])
+    await asyncio.gather(*[cloud_work(blob, inp, comp) for blob in settings.bucket_list])
     return
 
 
-async def storageio(blob, inp, comp):
+async def cloud_work(blob, inp, comp):
     """ interact with google cloud function """
-    status = 0
     max_out = 0
-    error = False
-    async with aiohttp.ClientSession() as session:
-        while ((status != 200) or (error == True)) and (max_out < 15):
-            try:
+    try:
+        async with aiohttp.ClientSession() as session:
+            while max_out < 10:
                 async with session.post(
                     settings.cloud_function,
                     json={"d": inp, "f": blob, "t": settings.token},
                 ) as resp:
-                    status = resp.status
-                    if status == 403:
-                        abort(403)
-                    max_out += 1
-                    comp[blob[10:19]] = await resp.text()
-                    error = False
-            except (
-                asyncio.TimeoutError,
-                aiohttp.client_exceptions.ClientConnectorError,
-                aiohttp.client_exceptions.ServerDisconnectedError,
-            ):
-                error = True
-                pass
-            except aiohttp.client_exceptions.ClientOSError:
-                print("ClientOSError")
-                return
+                    if max_out > 10:
+                        raise Exception("max_out")
+                    if resp.status == 200:
+                        comp[blob[10:19]] = await resp.text()
+                        break
+                    elif resp.status == 500:
+                        max_out += 1
+                    elif resp.status == 429:
+                        sleep(0.01)
+                    elif resp.status == 403:
+                        raise Exception("403") 
+                    else:
+                        raise Exception("Unknown error")
+    except Exception as e:
+        print(e)
     return
 
 
