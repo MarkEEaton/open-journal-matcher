@@ -105,6 +105,11 @@ async def cloud_work(blob, inp, comp):
                         raise Exception("403") 
                     else:
                         raise Exception("Unknown error")
+    except aiohttp.client_exceptions.ClientConnectorError:
+        print("retrying on aiohttp.client_exceptions.ClientConnectorError")
+        max_out += 1
+        if max_out < 15:
+            cloud_work(blob, inp, comp)
     except Exception as e:
         print(type(e), e)
     return
