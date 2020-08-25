@@ -87,12 +87,12 @@ async def cloud_work(blob, inp, comp):
     max_out = 0
     try:
         async with aiohttp.ClientSession() as session:
-            while max_out < 10:
+            while max_out < 15:
                 async with session.post(
                     settings.cloud_function,
                     json={"d": inp, "f": blob, "t": settings.token},
                 ) as resp:
-                    if max_out > 10:
+                    if max_out >= 15:
                         raise Exception("max_out")
                     if resp.status == 200:
                         comp[blob[10:19]] = await resp.text()
