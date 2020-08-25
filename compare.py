@@ -106,7 +106,7 @@ async def cloud_work(blob, inp, comp):
                     else:
                         raise Exception("Unknown error")
     except Exception as e:
-        print(e)
+        print(type(e), e)
     return
 
 
