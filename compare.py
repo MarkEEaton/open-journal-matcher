@@ -69,16 +69,18 @@ def index():
 
 @app.after_request
 def add_security_headers(resp):
-    resp.headers['X-Content-Type-Options'] = 'nosniff'
-    resp.headers['X-Frame-Options'] = 'SAMEORIGIN'
-    resp.headers['X-XSS-Protection'] = '1; mode=block'
-    resp.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    resp.headers["X-Content-Type-Options"] = "nosniff"
+    resp.headers["X-Frame-Options"] = "SAMEORIGIN"
+    resp.headers["X-XSS-Protection"] = "1; mode=block"
+    resp.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return resp
 
 
 async def parent(inp, comp):
     """ manage the async work """
-    await asyncio.gather(*[cloud_work(blob, inp, comp, 0) for blob in settings.bucket_list])
+    await asyncio.gather(
+        *[cloud_work(blob, inp, comp, 0) for blob in settings.bucket_list]
+    )
     return
 
 
@@ -102,13 +104,17 @@ async def cloud_work(blob, inp, comp, count):
                     elif resp.status == 429:
                         sleep(0.01)
                     elif resp.status == 403:
-                        raise Exception("403") 
+                        raise Exception("403")
                     else:
                         raise Exception("Unknown error")
-    except aiohttp.client_exceptions.ClientConnectorError:
-        print("retrying on aiohttp.client_exceptions.ClientConnectorError")
+    except (
+        aiohttp.client_exceptions.ClientConnectorError,
+        aiohttp.client_exceptions.ServerDisconnectedError,
+        asyncio.TimeoutError,
+    ) as e:
+        print(type(e), e, str(count))
         if count < 15:
-            cloud_work(blob, inp, comp, count + 1)
+            await cloud_work(blob, inp, comp, count + 1)
     except Exception as e:
         print(type(e), e)
     return
