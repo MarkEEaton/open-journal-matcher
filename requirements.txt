@@ -60,8 +60,6 @@ six==1.14.0
 sniffio==1.1.0
 sortedcontainers==2.1.0
 soupsieve==2.0.1
-spacy==2.3.2
-spacy-langdetect==0.1.2
 srsly==1.0.2
 tenacity==6.1.0
 thinc==7.4.1
