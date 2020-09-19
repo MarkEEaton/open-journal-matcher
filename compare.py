@@ -6,8 +6,7 @@ import regex
 import trio
 import settings
 import aiohttp
-import spacy
-from spacy_langdetect import LanguageDetector
+from langdetect import detect
 from time import sleep
 from flask_bootstrap import Bootstrap
 from collections import OrderedDict
@@ -21,8 +20,6 @@ app = Flask(__name__, static_url_path="/static")
 Bootstrap(app)
 app.config["SECRET_KEY"] = settings.csrf
 
-nlp = spacy.load("en")
-nlp.add_pipe(LanguageDetector(), name="language_detector", last=True)
 
 class WebForm(FlaskForm):
     """ for validation """
@@ -38,9 +35,9 @@ class WebForm(FlaskForm):
     )
 
     def validate_webabstract(form, field):
-        doc = nlp(field.data)
-        print(doc._.language)
-        if doc._.language["language"] != "en":
+        language = detect(field.data)
+        print(language)
+        if language != "en":
             raise ValidationError(
                 "The Open Journal Matcher only works with abstracts written in English."
             )
