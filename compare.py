@@ -92,23 +92,23 @@ def add_security_headers(resp):
 async def parent(inp, comp):
     """ manage the async work """
     await asyncio.gather(
-        *[cloud_work(blob, inp, comp) for blob in settings.bucket_list]
+        *[cloud_work(blob, inp, comp, 0) for blob in settings.bucket_list]
     )
     return
 
 
-async def cloud_work(blob, inp, comp):
+async def cloud_work(blob, inp, comp, count):
     """ interact with google cloud function """
     max_out = 0
     try:
         async with aiohttp.ClientSession() as session:
-            while max_out < 15:
+            while max_out < 16:
                 async with session.post(
                     settings.cloud_function,
                     json={"d": inp, "f": blob, "t": settings.token},
                 ) as resp:
                     if max_out >= 15:
-                        raise Exception("max_out")
+                        raise Exception("Max out")
                     if resp.status == 200:
                         comp[blob[10:19]] = await resp.text()
                         break
@@ -120,6 +120,14 @@ async def cloud_work(blob, inp, comp):
                         raise Exception("403")
                     else:
                         raise Exception("Unknown error")
+    except (
+        aiohttp.client_exceptions.ClientConnectorError,
+        aiohttp.client_exceptions.ServerDisconnectedError,
+        asyncio.TimeoutError,
+    ) as e:
+        print(type(e), e, str(count))
+        if count < 15:
+            await cloud_work(blob, inp, comp, count + 1)
     except Exception as e:
         print(type(e), e)
     return
