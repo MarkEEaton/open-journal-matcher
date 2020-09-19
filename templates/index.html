@@ -76,8 +76,7 @@
 							as is the code for the underlying matching algorithm, <a class="blue" href="https://github.com/explosion/spacy">spaCy</a>. Both use an MIT license.
 							The matcher's recommendations are also all open access.<br><br>
 							This application was built by <a class="blue" href="https://www.kbcc.cuny.edu/facultyprofiles/markeaton.html">Mark Eaton</a> at the City University of New York,
-							with the support of a Google Cloud Platform Credit grant. The computationally intensive data processing runs on a "serverless" Google Cloud Function.<br><br>
-							This tool will only work with abstracts written in English.
+							with the support of a Google Cloud Platform Credit grant. The computationally intensive data processing runs on a "serverless" Google Cloud Function.
 					</div>
 					<div id="results" style="margin-top:-50px;">
 						{% if output %}
@@ -95,7 +94,7 @@
 									{% if errors.get('webabstract')[0][:4] == "Your" %}
 										<strong>Error!</strong>
 									{% elif errors.get('webabstract')[0][:4] == "The " %}
-										<strong>Alert!</strong>
+										<strong>Uh oh!</strong>
 									{% endif %}
 								{{ errors.get('webabstract')[0] }}
 							</div>
