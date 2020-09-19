@@ -3,7 +3,6 @@
 import asyncio
 import asks
 import regex
-import trio
 import settings
 import aiohttp
 from langdetect import detect
@@ -56,8 +55,8 @@ def index():
         t0 = datetime.now()
 
         # do the work
-        asyncio.run(parent(inp, comp))
-        trio.run(tabulate, comp, unordered_scores)
+        asyncio.run(parent1(inp, comp))
+        asyncio.run(parent2(comp, unordered_scores))
 
         # sort the results
         scores = OrderedDict(
@@ -86,8 +85,8 @@ def add_security_headers(resp):
     return resp
 
 
-async def parent(inp, comp):
-    """ manage the async work """
+async def parent1(inp, comp):
+    """ manage the async calls to GCP """
     await asyncio.gather(
         *[cloud_work(blob, inp, comp, 0) for blob in settings.bucket_list]
     )
@@ -128,15 +127,8 @@ async def cloud_work(blob, inp, comp, count):
     return
 
 
-def test_response(resp):
-    """ some abstract collections raise ValueErrors. Ignore these """
-    try:
-        return float(resp)  # will evaluate as false if float == 0.0
-    except ValueError:
-        return False
-
-
-async def tabulate(comp, unordered_scores):
+async def parent2(comp, unordered_scores):
+    """ manage the async calls to the DOAJ api """
 
     # test for validity
     to_sort = [(k, v) for k, v in comp.items() if test_response(v)]
@@ -146,10 +138,18 @@ async def tabulate(comp, unordered_scores):
     top = sorted(to_sort, key=lambda x: x[1], reverse=True)[:5]
 
     # make calls to the doaj API asynchronously
-    async with trio.open_nursery() as nursery:
-        for idx, item in enumerate(top):
-            nursery.start_soon(titles, idx, item, unordered_scores)
+    await asyncio.gather(
+        *[titles(idx, item, unordered_scores) for idx, item in enumerate(top)]
+    )
     return
+
+
+def test_response(resp):
+    """ some abstract collections raise ValueErrors. Ignore these """
+    try:
+        return float(resp)  # will evaluate as false if float == 0.0
+    except ValueError:
+        return False
 
 
 async def titles(idx, item, unordered_scores):
@@ -159,7 +159,7 @@ async def titles(idx, item, unordered_scores):
         raise Exception("ISSN does not match regex")
 
     journal_data = await asks.get(
-        "https://doaj.org/api/v1/search/journals/issn%3A" + item[0]
+        "https://doaj.org/api/v1/search/journals/issn%3A" + issn 
     )
     journal_json = journal_data.json()
 
