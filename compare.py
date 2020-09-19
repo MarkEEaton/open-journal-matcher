@@ -103,17 +103,15 @@ async def cloud_work(blob, inp, comp, count):
                         max_out += 1
                     elif resp.status == 429:
                         sleep(0.01)
-                    elif resp.status == 403:
-                        raise Exception("403")
                     else:
-                        raise Exception("Unknown error")
+                        raise Exception(str(resp.status))
     except (
         aiohttp.client_exceptions.ClientConnectorError,
         aiohttp.client_exceptions.ServerDisconnectedError,
         asyncio.TimeoutError,
     ) as e:
         print(type(e), e, str(count))
-        if count < 15:
+        if count < 5:
             await cloud_work(blob, inp, comp, count + 1)
     except Exception as e:
         print(type(e), e)
