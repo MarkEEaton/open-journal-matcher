@@ -6,12 +6,14 @@ import regex
 import trio
 import settings
 import aiohttp
+import spacy
+from spacy_langdetect import LanguageDetector
 from time import sleep
 from flask_bootstrap import Bootstrap
 from collections import OrderedDict
 from flask_wtf import FlaskForm
 from wtforms import TextAreaField, SubmitField
-from wtforms.validators import Length
+from wtforms.validators import Length, ValidationError
 from flask import Flask, render_template, request, url_for, Response, abort
 from datetime import datetime
 
@@ -19,11 +21,13 @@ app = Flask(__name__, static_url_path="/static")
 Bootstrap(app)
 app.config["SECRET_KEY"] = settings.csrf
 
+nlp = spacy.load("en")
+nlp.add_pipe(LanguageDetector(), name="language_detector", last=True)
 
 class WebForm(FlaskForm):
     """ for validation """
 
-    web_abstract_var = TextAreaField(
+    webabstract = TextAreaField(
         validators=[
             Length(
                 min=150,
@@ -32,6 +36,15 @@ class WebForm(FlaskForm):
             )
         ]
     )
+
+    def validate_webabstract(form, field):
+        doc = nlp(field.data)
+        print(doc._.language)
+        if doc._.language["language"] != "en":
+            raise ValidationError(
+                "The Open Journal Matcher only works with abstracts written in English."
+            )
+
     submit = SubmitField("Search")
 
 
@@ -42,7 +55,7 @@ def index():
     if request.method == "POST" and form.validate_on_submit():
         comp = {}
         unordered_scores = {}
-        inp = form.web_abstract_var.data
+        inp = form.webabstract.data
         t0 = datetime.now()
 
         # do the work

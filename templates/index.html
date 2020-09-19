@@ -42,12 +42,12 @@
 			</div>
 			<div class="col-1" style="max-width:100%">
 				<h2 class="pad head2">
-					<label id="label" for="web_abstract_var">Enter your abstract here:</label>
+					<label id="label" for="webabstract">Enter your abstract here:</label>
 				</h2>
 				<form class="form-group" action="" method="POST" novalidate onsubmit="show()">
 					{{ form.hidden_tag() }}
 					<div class="pad">
-						<textarea class="pad form-control" id="web_abstract_var" placeholder="Enter your abstract here..." name="web_abstract_var"></textarea>
+						<textarea class="pad form-control" id="webabstract" placeholder="Enter your abstract here..." name="webabstract"></textarea>
 						<div style="width:200px; height:50px;" class="modified-pad">{{ form.submit() }}</div>
 					</div>
 				</form>
@@ -90,9 +90,14 @@
 								{{ output[item][0] }}. {{ output[item][1] }}
 							</li>
 						{% endfor %}
-						{% if errors.get('web_abstract_var')[0] %}
-							<div id="error" style="margin-top:-50px;" class="alert alert-danger" role="alert"><strong>Error!</strong>
-								{{ errors.get('web_abstract_var')[0] }}
+						{% if errors.get('webabstract')[0] %}
+							<div id="error" style="margin-top:-50px;" class="alert alert-danger" role="alert">
+									{% if errors.get('webabstract')[0][:4] == "Your" %}
+										<strong>Error!</strong>
+									{% elif errors.get('webabstract')[0][:4] == "The " %}
+										<strong>Alert!</strong>
+									{% endif %}
+								{{ errors.get('webabstract')[0] }}
 							</div>
 						{% endif %}
 					</div>
