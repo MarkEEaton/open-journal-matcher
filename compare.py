@@ -5,7 +5,7 @@ import asks
 import regex
 import settings
 import aiohttp
-from langdetect import detect
+import langdetect
 from time import sleep
 from flask_bootstrap import Bootstrap
 from collections import OrderedDict
@@ -34,7 +34,12 @@ class WebForm(FlaskForm):
     )
 
     def validate_webabstract(form, field):
-        language = detect(field.data)
+        try:
+            language = langdetect.detect(field.data)
+        except langdetect.lang_detect_exception.LangDetectException:
+            raise ValidationError(
+                "Your abstract must be between 150 and 10,000 characters."
+            )
         print(language)
         if language != "en":
             raise ValidationError(
@@ -159,7 +164,7 @@ async def titles(idx, item, unordered_scores):
         raise Exception("ISSN does not match regex")
 
     journal_data = await asks.get(
-        "https://doaj.org/api/v1/search/journals/issn%3A" + issn 
+        "https://doaj.org/api/v1/search/journals/issn%3A" + issn
     )
     journal_json = journal_data.json()
 
