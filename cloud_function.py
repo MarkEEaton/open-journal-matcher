@@ -5,7 +5,7 @@ from flask import Response
 from aiohttp import ClientSession as Session
 from gcloud.aio.storage import Storage
 
-nlp = spacy.load("en_core_web_md")
+nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner"])
 
 async def doaj_trio(request):
     try:
@@ -15,7 +15,7 @@ async def doaj_trio(request):
         if data["t"] == settings.token:
             async with Session() as session:
                 storage = Storage(session=session)
-                bucket = storage.get_bucket(bucket_name)
+                bucket = storage.get_bucket(settings.bucket_name)
                 blob = data["f"]
                 print(blob)
                 blob_object = await bucket.get_blob(blob)
