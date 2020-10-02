@@ -124,7 +124,7 @@ async def cloud_work(blob, inp, comp, count):
         aiohttp.client_exceptions.ServerDisconnectedError,
         asyncio.TimeoutError,
     ) as e:
-        print(type(e), e, str(count))
+        # print(type(e), e, str(count))
         if count < 5:
             await cloud_work(blob, inp, comp, count + 1)
     except Exception as e:
