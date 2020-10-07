@@ -1,4 +1,4 @@
-document.getElementById("show").addEventListener("click", function() {
+document.getElementById("submitForm").addEventListener("click", function() {
     document.getElementById("waiting").style.display = "block";
     document.getElementById("results").style.display = "none";
     document.getElementById("docs").style.display = "none";
@@ -6,7 +6,7 @@ document.getElementById("show").addEventListener("click", function() {
     history.replaceState(null, null, ' ');
 });      
 
-document.getElementById("finger").addEventListener("click", function() {
+document.getElementById("showDocs").addEventListener("click", function() {
     document.getElementById("docs").style.display = "block";
     document.getElementById("results").style.display = "none";
     if (document.getElementById("waiting").style.display === "block") {
