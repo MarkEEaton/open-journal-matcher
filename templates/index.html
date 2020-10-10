@@ -65,7 +65,12 @@
 						{% for item in output %}
 							<li>
 								<strong>{{ "{0:.2f}".format(item) }}</strong> :
-								{{ output[item][0] }}. {{ output[item][1] }}
+								{% if output[item][2] %}
+									<a href="{{ output[item][2] }}">{{ output[item][0] }}</a>.
+								{% else %}
+									{{ output[item][0] }}.
+								{% endif %}
+								{{ output[item][1] }}
 							</li>
 						{% endfor %}
 						{% if errors.get('webabstract')[0] %}

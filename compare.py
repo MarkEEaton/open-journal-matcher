@@ -87,7 +87,7 @@ def add_security_headers(resp):
     resp.headers["X-Frame-Options"] = "SAMEORIGIN"
     resp.headers["X-XSS-Protection"] = "1; mode=block"
     resp.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    resp.headers["Content-Security-Policy"] = "script-src 'self'; style-src 'self'; object-src 'none'" 
+    resp.headers["Content-Security-Policy"] = "script-src 'self'; style-src 'self'; default-src 'none'" 
     return resp
 
 
@@ -173,11 +173,9 @@ async def titles(idx, item, unordered_scores):
         title = journal_json["results"][0]["bibjson"]["title"]
         if title[-1:] == " ":
             title = title[:-1]
+        url = "https://doaj.org/toc/" + issn
     except:
         title = "Title lookup failed. Try finding this item by ISSN instead.."
-    try:
-        url = journal_json["results"][0]["bibjson"]["link"][0]["url"]
-    except:
         url = ""
     score = float(item[1]) * 100
     unordered_scores[score] = (title, issn, url)
