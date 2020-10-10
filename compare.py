@@ -53,7 +53,8 @@ class WebForm(FlaskForm):
 def index():
     """ display index page """
     form = WebForm()
-    if request.method == "POST" and form.validate_on_submit():
+    valid = form.validate_on_submit()
+    if request.method == "POST" and valid:
         comp = {}
         unordered_scores = {}
         inp = form.webabstract.data
@@ -74,7 +75,7 @@ def index():
 
         return render_template("index.html", form=form, errors={}, output=scores)
 
-    elif request.method == "POST" and not form.validate_on_submit():
+    elif request.method == "POST" and not valid:
         return render_template("index.html", form=form, errors=form.errors, output="")
 
     else:
