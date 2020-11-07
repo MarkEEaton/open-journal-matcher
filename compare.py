@@ -6,6 +6,8 @@ import regex
 import settings
 import aiohttp
 import langdetect
+import os
+import schedule
 from time import sleep
 from flask_bootstrap import Bootstrap
 from collections import OrderedDict
@@ -14,11 +16,17 @@ from wtforms import TextAreaField, SubmitField
 from wtforms.validators import Length, ValidationError
 from flask import Flask, render_template, request, url_for, Response, abort
 from datetime import datetime
+from redislite import StrictRedis
 
 app = Flask(__name__, static_url_path="/static")
 Bootstrap(app)
 app.config["SECRET_KEY"] = settings.csrf
-
+REDIS = os.path.join("/tmp/redis.db")
+r = StrictRedis(REDIS, charset="utf-8", decode_responses=True)
+r.hset("counter", "increment", 0)
+def reset_redis():
+    r.hset("counter", "increment", 0)
+schedule.every().hour.do(reset_redis)
 
 class WebForm(FlaskForm):
     """ for validation """
@@ -55,6 +63,15 @@ def index():
     form = WebForm()
     valid = form.validate_on_submit()
     if request.method == "POST" and valid:
+        schedule.run_pending()
+        redis_dict = r.hgetall("counter")
+        counter = int(redis_dict["increment"])
+        counter += 1
+        print("counter:", counter)
+        if counter >= 40:
+            rate_error = {"webabstract" : ["The application is experiencing peak load. Please try again later."]}
+            return render_template("index.html", form=form, errors=rate_error, output="")
+        r.hset("counter", "increment", counter)
         comp = {}
         unordered_scores = {}
         inp = form.webabstract.data
