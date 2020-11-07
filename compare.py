@@ -63,15 +63,18 @@ def index():
     form = WebForm()
     valid = form.validate_on_submit()
     if request.method == "POST" and valid:
+
+        # check to ensure not over rate limit
         schedule.run_pending()
-        redis_dict = r.hgetall("counter")
-        counter = int(redis_dict["increment"])
+        counter = int(r.hget("counter", "increment"))
         counter += 1
         print("counter:", counter)
         if counter >= 40:
             rate_error = {"webabstract" : ["The application is experiencing peak load. Please try again later."]}
             return render_template("index.html", form=form, errors=rate_error, output="")
         r.hset("counter", "increment", counter)
+
+        # lay the groundwork
         comp = {}
         unordered_scores = {}
         inp = form.webabstract.data
