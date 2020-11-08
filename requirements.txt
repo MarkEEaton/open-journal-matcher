@@ -54,9 +54,12 @@ pyparsing==2.4.7
 pytest==6.0.2
 pytz==2019.3
 PyYAML==5.3.1
+redis==3.5.3
+redislite==5.0.165407
 regex==2020.7.14
 requests==2.23.0
 safety==1.9.0
+schedule==0.6.0
 six==1.14.0
 sniffio==1.1.0
 sortedcontainers==2.1.0
