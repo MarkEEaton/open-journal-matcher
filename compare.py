@@ -24,9 +24,14 @@ app.config["SECRET_KEY"] = settings.csrf
 REDIS = os.path.join("/tmp/redis.db")
 r = StrictRedis(REDIS, charset="utf-8", decode_responses=True)
 r.hset("counter", "increment", 0)
+
+
 def reset_redis():
     r.hset("counter", "increment", 0)
+
+
 schedule.every().hour.do(reset_redis)
+
 
 class WebForm(FlaskForm):
     """ for validation """
@@ -70,8 +75,14 @@ def index():
         counter += 1
         print("counter:", counter)
         if counter >= 40:
-            rate_error = {"webabstract" : ["The application is experiencing peak load. Please try again later."]}
-            return render_template("index.html", form=form, errors=rate_error, output="")
+            rate_error = {
+                "webabstract": [
+                    "The application is experiencing peak load. Please try again later."
+                ]
+            }
+            return render_template(
+                "index.html", form=form, errors=rate_error, output=""
+            )
         r.hset("counter", "increment", counter)
 
         # lay the groundwork
@@ -108,7 +119,9 @@ def add_security_headers(resp):
     resp.headers["X-Frame-Options"] = "SAMEORIGIN"
     resp.headers["X-XSS-Protection"] = "1; mode=block"
     resp.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    resp.headers["Content-Security-Policy"] = "script-src 'self'; style-src 'self'; default-src 'none'" 
+    resp.headers[
+        "Content-Security-Policy"
+    ] = "script-src 'self'; style-src 'self'; default-src 'none'"
     return resp
 
 
