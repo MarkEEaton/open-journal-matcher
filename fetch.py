@@ -35,6 +35,8 @@ def fetch(issn):
 def parse(articles):
     abstracts = ""
     print('Number of articles: ' + str(len(articles)))
+    if len(articles) <= 10:
+        return abstracts
     for article in articles:
         try:
             abstract = article["bibjson"]["abstract"]
