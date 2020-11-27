@@ -3,7 +3,7 @@
 import asyncio
 import asks
 import regex
-import settings
+import settingsnovember2020 as settings
 import aiohttp
 import langdetect
 import os
@@ -67,10 +67,10 @@ def index():
     """ display index page """
     form = WebForm()
     valid = form.validate_on_submit()
+    schedule.run_pending()
     if request.method == "POST" and valid:
 
         # check to ensure not over rate limit
-        schedule.run_pending()
         counter = int(r.hget("counter", "increment"))
         counter += 1
         print("counter:", counter)
@@ -199,7 +199,7 @@ async def titles(idx, item, unordered_scores):
         raise Exception("ISSN does not match regex")
 
     journal_data = await asks.get(
-        "https://doaj.org/api/v1/search/journals/issn%3A" + issn
+        "https://doaj.org/api/v2/search/journals/issn%3A" + issn
     )
     journal_json = journal_data.json()
 
