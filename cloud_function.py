@@ -6,7 +6,7 @@ from aiohttp import ClientSession as Session
 from gcloud.aio.storage import Storage
 
 nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner"])
-
+    
 async def doaj_trio(request):
     try:
         encoded_data = request.data
