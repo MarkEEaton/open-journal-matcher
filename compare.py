@@ -74,7 +74,7 @@ def index():
         counter = int(r.hget("counter", "increment"))
         counter += 1
         print("counter:", counter)
-        if counter >= 40:
+        if counter >= 20:
             rate_error = {
                 "webabstract": [
                     "The application is experiencing peak load. Please try again later."
