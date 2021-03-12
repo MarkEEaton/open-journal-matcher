@@ -10,5 +10,6 @@ Presented at:
 * 18th Annual CUNY IT Conference. December 5, 2019.
 * Linux Conference Australia. January 23, 2021.
 * Open Science Conference. February 17, 2021.
+* Electronic Resources & Libraries. March 11, 2021.
 
 This project is partly supported by a grant of Google Cloud Platform credits.
