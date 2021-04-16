@@ -12,4 +12,4 @@ Presented at:
 * Open Science Conference. February 17, 2021.
 * Electronic Resources & Libraries. March 11, 2021.
 
-This project is partly supported by a grant of Google Cloud Platform credits.
+This project is partly supported by a PSC CUNY Research grant, and a grant of Google Cloud Platform credits.
