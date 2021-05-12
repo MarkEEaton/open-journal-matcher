@@ -48,7 +48,7 @@ def parse(articles):
 
 
 if __name__ == "__main__":
-    with open("issnlist-June2020.txt") as issnfile:
+    with open("issnlist-May2021.txt") as issnfile:
         issns = json.loads(issnfile.read())
 
     for idx, issn in enumerate(issns):
@@ -57,5 +57,5 @@ if __name__ == "__main__":
         if abstracts == "":
             pass
         else:
-            with open("abstracts-June2020/" + issn + ".txt", "w") as abstractfile:
+            with open("abstracts-May2021/" + issn, "w") as abstractfile:
                 abstractfile.write(json.dumps(abstracts))
