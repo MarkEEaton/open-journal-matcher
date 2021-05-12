@@ -3,7 +3,7 @@
 import asyncio
 import asks
 import regex
-import settingsnovember2020 as settings
+import settingsmay2021 as settings
 import aiohttp
 import langdetect
 import os
@@ -74,12 +74,13 @@ def index():
         counter = int(r.hget("counter", "increment"))
         counter += 1
         print("counter:", counter)
-        if counter >= 20:
+        if counter >= 10:
             rate_error = {
                 "webabstract": [
                     "The application is experiencing peak load. Please try again later."
                 ]
             }
+            print("Turnaway due to load")
             return render_template(
                 "index.html", form=form, errors=rate_error, output=""
             )
@@ -138,15 +139,15 @@ async def cloud_work(blob, inp, comp, count):
     max_out = 0
     try:
         async with aiohttp.ClientSession() as session:
-            while max_out < 16:
+            while max_out < 6:
                 async with session.post(
                     settings.cloud_function,
                     json={"d": inp, "f": blob, "t": settings.token},
                 ) as resp:
-                    if max_out >= 15:
+                    if max_out >= 5:
                         raise Exception("Max out")
                     if resp.status == 200:
-                        comp[blob[10:19]] = await resp.text()
+                        comp[blob] = await resp.text()
                         break
                     elif resp.status == 500:
                         max_out += 1
