@@ -4,9 +4,10 @@ import csv
 import json
 import regex
 
+MONTH = "2021-09"
 output = []
 
-with open("journallist-September2021.csv", newline="") as csvfile:
+with open("journallist-" + MONTH + ".csv", newline="") as csvfile:
     data = csv.reader(csvfile)
     for row in data:
         try:
@@ -27,5 +28,5 @@ with open("journallist-September2021.csv", newline="") as csvfile:
         except:
             pass
 
-with open("issnlist-September2021.txt", "w") as issnfile:
+with open("issnlist-" + MONTH + ".txt", "w") as issnfile:
     issnfile.write(json.dumps(output))
