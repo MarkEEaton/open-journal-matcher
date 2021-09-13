@@ -1,12 +1,13 @@
 """ loop through the issns, gather abstracts and wite to abstracts/ """
 import json
+import os
 import requests
 import spacy
 from time import sleep
 from bs4 import BeautifulSoup
 
+MONTH = "2021-09"
 nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner", "lemmatizer"])
-
 
 def fetch(issn):
     base_url = "https://doaj.org/api/v1/search/articles/issn%3A"
@@ -48,21 +49,29 @@ def parse(articles):
             doc = nlp(abstracts)
             doc_bytes = doc.to_bytes()
         except KeyError:
+            doc_bytes = None
             pass
     return doc_bytes
 
 
 if __name__ == "__main__":
-    with open("issnlist-April2021.txt") as issnfile:
+    with open("issnlist-" + MONTH + ".txt") as issnfile:
         issns = json.loads(issnfile.read())
 
-    for idx, issn in enumerate(issns[14:25]):
-        articles = fetch(issn)
-        doc_bytes = parse(articles)
-        if not doc_bytes:
-            pass
+    issns_output = []
+    
+    for idx, issn in enumerate(issns):
+        if not os.path.exists("abstracts-" + MONTH + "/" + issn):
+            articles = fetch(issn)
+            doc_bytes = parse(articles)
+            if not doc_bytes:
+                pass
+            else:
+                with open("abstracts-" + MONTH + "/" + issn, "wb") as abstractfile:
+                    abstractfile.write(doc_bytes)
+                issns_output.append(issn)
         else:
-            with open("abstracts-April2021/" + issn, "wb") as abstractfile:
-                abstractfile.write(doc_bytes)
-    with open("abstracts-April2021/vocab", "wb") as vocabfile:
-        vocabfile.write(nlp.vocab.to_bytes())
+            issns_output.append(issn)
+    nlp.config.to_disk("abstracts-" + MONTH + "/config.cfg")
+    with open("issns-" + MONTH + ".txt", "w") as issnfile:
+        issnfile.write(json.dumps(issns_output))

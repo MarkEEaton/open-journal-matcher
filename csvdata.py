@@ -6,7 +6,7 @@ import regex
 
 output = []
 
-with open("journallist-April2021.csv", newline="") as csvfile:
+with open("journallist-September2021.csv", newline="") as csvfile:
     data = csv.reader(csvfile)
     for row in data:
         try:
@@ -27,5 +27,5 @@ with open("journallist-April2021.csv", newline="") as csvfile:
         except:
             pass
 
-with open("issnlist-April2021.txt", "w") as issnfile:
+with open("issnlist-September2021.txt", "w") as issnfile:
     issnfile.write(json.dumps(output))
