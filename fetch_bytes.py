@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 MONTH = "2021-09"
 nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner", "lemmatizer"])
 
+
 def fetch(issn):
     base_url = "https://doaj.org/api/v1/search/articles/issn%3A"
     pagesize = "?pageSize=100&sort=year%3Adesc"
@@ -38,19 +39,22 @@ def fetch(issn):
 
 def parse(articles):
     abstracts = ""
-    print('Number of articles: ' + str(len(articles)))
-    if len(articles) <= 10:
-        return abstracts
+    counter = 0
+    print("Number of articles: " + str(len(articles)))
     for article in articles:
         try:
             abstract = article["bibjson"]["abstract"]
             abstract = BeautifulSoup(abstract, "lxml").text
             abstracts = abstracts + " " + abstract
-            doc = nlp(abstracts)
-            doc_bytes = doc.to_bytes()
+            counter += 1
         except KeyError:
-            doc_bytes = None
             pass
+    if abstracts and counter >= 10:
+        doc = nlp(abstracts)
+        doc_bytes = doc.to_bytes()
+    else:
+        doc_bytes = None
+        print("fail! " + str(counter))
     return doc_bytes
 
 
@@ -59,19 +63,23 @@ if __name__ == "__main__":
         issns = json.loads(issnfile.read())
 
     issns_output = []
-    
+
     for idx, issn in enumerate(issns):
         if not os.path.exists("abstracts-" + MONTH + "/" + issn):
             articles = fetch(issn)
             doc_bytes = parse(articles)
             if not doc_bytes:
+                # if the file does not exist but there is no data
                 pass
             else:
+                # if the file does not exist and there is data
                 with open("abstracts-" + MONTH + "/" + issn, "wb") as abstractfile:
                     abstractfile.write(doc_bytes)
                 issns_output.append(issn)
         else:
+            # if the file exists
             issns_output.append(issn)
+            pass
     nlp.config.to_disk("abstracts-" + MONTH + "/config.cfg")
     with open("issns-" + MONTH + ".txt", "w") as issnfile:
         issnfile.write(json.dumps(issns_output))
