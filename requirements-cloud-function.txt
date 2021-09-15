@@ -1,14 +1,11 @@
 # Function dependencies, for example:
 # package>=version
 spacy==2.2.1
-aiohttp==3.4.4
-asyncio==3.4.3
-async-timeout==3.0.1
 attrs==19.3.0
 backoff==1.10.0
 cffi==1.14.0
 chardet==3.0.4
-cryptography==2.8
+cryptography==3.4.8
 future==0.18.2
 google-cloud-storage==1.42.1
 idna==2.8
