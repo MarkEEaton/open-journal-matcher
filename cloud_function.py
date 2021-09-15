@@ -1,13 +1,12 @@
 import json
 import os
 import spacy
-import asyncio
 from flask import Response
 from google.cloud import storage
 
 nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner", "lemmatizer"])
 
-async def doaj_trio(request):
+def doaj_trio(request):
     try:
         encoded_data = request.data
         string_data = encoded_data.decode()
