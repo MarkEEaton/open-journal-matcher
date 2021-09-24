@@ -1,0 +1,20 @@
+# Function dependencies, for example:
+# package>=version
+spacy==2.2.1
+attrs==19.3.0
+backoff==1.10.0
+cffi==1.14.0
+chardet==3.0.4
+cryptography==3.4.8
+future==0.18.2
+google-cloud-storage==1.42.1
+idna==2.8
+idna-ssl==1.1.0
+multidict==4.7.4
+pycparser==2.19
+PyJWT==1.7.1
+six==1.14.0
+typing==3.7.4.1
+typing-extensions==3.7.4.1
+yarl==1.4.2
+https://github.com/explosion/spacy-models/releases/download/en_core_web_md-2.2.0/en_core_web_md-2.2.0.tar.gz#en_core_web_md

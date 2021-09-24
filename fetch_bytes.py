@@ -1,10 +1,12 @@
 """ loop through the issns, gather abstracts and wite to abstracts/ """
 import json
+import os
 import requests
 import spacy
 from time import sleep
 from bs4 import BeautifulSoup
 
+MONTH = "2021-09"
 nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner", "lemmatizer"])
 
 
@@ -37,32 +39,47 @@ def fetch(issn):
 
 def parse(articles):
     abstracts = ""
-    print('Number of articles: ' + str(len(articles)))
-    if len(articles) <= 10:
-        return abstracts
+    counter = 0
+    print("Number of articles: " + str(len(articles)))
     for article in articles:
         try:
             abstract = article["bibjson"]["abstract"]
             abstract = BeautifulSoup(abstract, "lxml").text
             abstracts = abstracts + " " + abstract
-            doc = nlp(abstracts)
-            doc_bytes = doc.to_bytes()
+            counter += 1
         except KeyError:
             pass
+    if abstracts and counter >= 10:
+        doc = nlp(abstracts)
+        doc_bytes = doc.to_bytes()
+    else:
+        doc_bytes = None
+        print("fail! " + str(counter))
     return doc_bytes
 
 
 if __name__ == "__main__":
-    with open("issnlist-April2021.txt") as issnfile:
+    with open("issnlist-" + MONTH + ".txt") as issnfile:
         issns = json.loads(issnfile.read())
 
-    for idx, issn in enumerate(issns[14:25]):
-        articles = fetch(issn)
-        doc_bytes = parse(articles)
-        if not doc_bytes:
-            pass
+    issns_output = []
+
+    for idx, issn in enumerate(issns):
+        if not os.path.exists("abstracts-" + MONTH + "/" + issn):
+            articles = fetch(issn)
+            doc_bytes = parse(articles)
+            if not doc_bytes:
+                # if the file does not exist but there is no data
+                pass
+            else:
+                # if the file does not exist and there is data
+                with open("abstracts-" + MONTH + "/" + issn, "wb") as abstractfile:
+                    abstractfile.write(doc_bytes)
+                issns_output.append(issn)
         else:
-            with open("abstracts-April2021/" + issn, "wb") as abstractfile:
-                abstractfile.write(doc_bytes)
-    with open("abstracts-April2021/vocab", "wb") as vocabfile:
-        vocabfile.write(nlp.vocab.to_bytes())
+            # if the file exists
+            issns_output.append(issn)
+            pass
+    nlp.config.to_disk("abstracts-" + MONTH + "/config.cfg")
+    with open("issns-" + MONTH + ".txt", "w") as issnfile:
+        issnfile.write(json.dumps(issns_output))
