@@ -28,7 +28,8 @@ six==1.16.0
 sniffio==1.2.0
 typing-extensions==3.10.0.2
 visitor==0.1.3
-Werkzeug==2.0.1
+wasabi==0.8.2
 WTForms==2.3.3
 yarl==1.6.3
 zipp==3.5.0
+Werkzeug==2.0.2

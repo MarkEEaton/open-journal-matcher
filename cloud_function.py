@@ -29,5 +29,4 @@ def doaj_trio(request):
     except (AssertionError, KeyError, json.decoder.JSONDecodeError):
         return Response("403 Forbidden", status=403, mimetype="text/plain")
     except:
-        raise
         return Response("500 Error", status=500, mimetype="text/plain")
