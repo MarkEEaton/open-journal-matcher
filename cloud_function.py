@@ -1,32 +1,33 @@
-import json
 import os
 import spacy
-from flask import Response
+from configparser import ConfigParser
+from flask import Response, request
 from google.cloud import storage
 
 nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner", "lemmatizer"])
 
 def doaj_trio(request):
     try:
-        encoded_data = request.data
-        string_data = encoded_data.decode()
-        data = json.loads(string_data)
+        user_nlp = request.data
+        blob = request.headers.get('blob')
 
-        assert data["t"] == os.environ['token']
         client = storage.Client()
         bucket = client.get_bucket(os.environ['bucket'])
 
-        blob = data["f"]
-        print(blob)
-            
+        config_blob = bucket.get_blob('config.cfg')
+        config_text = config_blob.download_as_text()
+        config = ConfigParser(allow_no_value=True)
+        config.read_string(config_text)
+
+        lang_cls = spacy.util.get_lang_class(config["nlp"]["lang"])
+        nlp = lang_cls.from_config(config)
+        user = nlp.from_bytes(user_nlp)
+
         blob_object = bucket.get_blob(blob)
-        raw_data = blob_object.download_as_text()
-        journal_nlp = nlp(str(raw_data)[:100000])
-        user_nlp = nlp(data["d"])
-        sim = user_nlp.similarity(journal_nlp)
+        journal_nlp = blob_object.download_as_bytes()
+        journal = nlp.from_bytes(journal_nlp)
+        sim = user.similarity(journal)
         return str(sim)
 
-    except (AssertionError, KeyError, json.decoder.JSONDecodeError):
-        return Response("403 Forbidden", status=403, mimetype="text/plain")
     except:
-        return Response("500 Error", status=500, mimetype="text/plain")
+        raise
