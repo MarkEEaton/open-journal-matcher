@@ -94,7 +94,7 @@ def index():
         unordered_scores = {}
         inp = form.webabstract.data
         t0 = datetime.now()
-        user_nlp = nlp(inp).to_json()
+        user_nlp = nlp(inp).to_bytes()
 
         # do the work
         asyncio.run(parent1(user_nlp, comp))
@@ -140,14 +140,14 @@ async def parent1(user_nlp, comp):
 
 async def cloud_work(blob, user_nlp, comp, count):
     """ interact with google cloud function """
-    user_data = {"d": user_nlp, "f": blob, "t": settings.token}
     max_out = 0
     try:
         async with aiohttp.ClientSession() as session:
             while max_out < 6:
                 async with session.post(
                     settings.cloud_function,
-                    json = user_data,
+                    data = user_nlp,
+                    headers = {'blob': blob},
                 ) as resp:
                     if max_out >= 5:
                         raise Exception("Max out")
