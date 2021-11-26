@@ -3,11 +3,12 @@
 import asyncio
 import asks
 import regex
-import settingsmay2021 as settings
+import settings202109 as settings
 import aiohttp
 import langdetect
 import os
 import schedule
+import spacy
 from time import sleep
 from flask_bootstrap import Bootstrap
 from collections import OrderedDict
@@ -18,10 +19,12 @@ from flask import Flask, render_template, request, url_for, Response, abort
 from datetime import datetime
 from redislite import StrictRedis
 
+nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner", "lemmatizer"])
+
 app = Flask(__name__, static_url_path="/static")
 Bootstrap(app)
 app.config["SECRET_KEY"] = settings.csrf
-REDIS = os.path.join("/tmp/redis.db")
+REDIS = os.path.join("/tmp/redis-dev.db")
 r = StrictRedis(REDIS, charset="utf-8", decode_responses=True)
 r.hset("counter", "increment", 0)
 
@@ -91,9 +94,10 @@ def index():
         unordered_scores = {}
         inp = form.webabstract.data
         t0 = datetime.now()
+        user_nlp = nlp(inp).to_json()
 
         # do the work
-        asyncio.run(parent1(inp, comp))
+        asyncio.run(parent1(user_nlp, comp))
         asyncio.run(parent2(comp, unordered_scores))
 
         # sort the results
@@ -126,23 +130,24 @@ def add_security_headers(resp):
     return resp
 
 
-async def parent1(inp, comp):
+async def parent1(user_nlp, comp):
     """ manage the async calls to GCP """
     await asyncio.gather(
-        *[cloud_work(blob, inp, comp, 0) for blob in settings.bucket_list]
+            *[cloud_work(blob, user_nlp, comp, 0) for blob in settings.bucket_list[:10]]
     )
     return
 
 
-async def cloud_work(blob, inp, comp, count):
+async def cloud_work(blob, user_nlp, comp, count):
     """ interact with google cloud function """
+    user_data = {"d": user_nlp, "f": blob, "t": settings.token}
     max_out = 0
     try:
         async with aiohttp.ClientSession() as session:
             while max_out < 6:
                 async with session.post(
                     settings.cloud_function,
-                    json={"d": inp, "f": blob, "t": settings.token},
+                    json = user_data,
                 ) as resp:
                     if max_out >= 5:
                         raise Exception("Max out")
@@ -162,7 +167,7 @@ async def cloud_work(blob, inp, comp, count):
     ) as e:
         # print(type(e), e, str(count))
         if count < 5:
-            await cloud_work(blob, inp, comp, count + 1)
+            await cloud_work(blob, user_nlp, comp, count + 1)
     except Exception as e:
         print(type(e), e)
     return
