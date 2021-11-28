@@ -2,6 +2,7 @@ import os
 import spacy
 from flask import Response, request
 from google.cloud import storage
+from spacy.tokens import Doc
 from thinc.api import Config
 
 
@@ -21,14 +22,12 @@ def doaj_trio(request):
         journal_nlp = blob_object.download_as_bytes()
 
         lang_cls = spacy.util.get_lang_class(config["nlp"]["lang"])
-        nlp1 = lang_cls.from_config(config)
-        nlp2 = lang_cls.from_config(config)
-        nlp1.from_bytes(user_nlp)
-        nlp2.from_bytes(journal_nlp)
+        nlp = lang_cls.from_config(config)
+        user_sim = Doc(nlp.vocab).from_bytes(user_nlp)
+        journal_sim = Doc(nlp.vocab).from_bytes(journal_nlp)
 
-        sim = nlp2.similarity(nlp1)
+        sim = user_sim.similarity(journal_sim)
         return str(sim)
 
     except:
         raise
-
