@@ -6,8 +6,8 @@ import spacy
 from time import sleep
 from bs4 import BeautifulSoup
 
-MONTH = "2021-09"
-nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner", "lemmatizer"])
+MONTH = "2021-12"
+nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner", "lemmatizer", "attribute_ruler"])
 
 
 def fetch(issn):
@@ -53,9 +53,9 @@ def parse(articles):
         doc = nlp(abstracts)
         doc_bytes = doc.to_bytes()
     else:
-        doc_bytes = None
+        doc = None
         print("fail! " + str(counter))
-    return doc_bytes
+    return doc
 
 
 if __name__ == "__main__":
@@ -64,17 +64,20 @@ if __name__ == "__main__":
 
     issns_output = []
 
-    for idx, issn in enumerate(issns):
+    for idx, issn in enumerate(issns[:200]):
         if not os.path.exists("abstracts-" + MONTH + "/" + issn):
             articles = fetch(issn)
-            doc_bytes = parse(articles)
-            if not doc_bytes:
+            doc = parse(articles)
+            if not doc:
                 # if the file does not exist but there is no data
                 pass
             else:
                 # if the file does not exist and there is data
+                doc_bytes = doc.to_bytes()
                 with open("abstracts-" + MONTH + "/" + issn, "wb") as abstractfile:
                     abstractfile.write(doc_bytes)
+                os.makedirs("abstracts-" + MONTH + "/" + issn + "-vocab")
+                doc.vocab.to_disk("abstracts-" + MONTH + "/" + issn + "-vocab")
                 issns_output.append(issn)
         else:
             # if the file exists
