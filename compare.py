@@ -2,6 +2,7 @@
 
 import asyncio
 import asks
+import concurrent
 import regex
 import settings202201 as settings
 import aiohttp
@@ -148,25 +149,27 @@ async def cloud_work(blob, inp, comp, count):
                     json = {'inp': inp},
                     headers = {'blob': blob},
                 ) as resp:
+                    if resp.status != 200:
+                        print(resp.status)
                     if max_out >= 5:
                         raise Exception("Max out")
                     if resp.status == 200:
                         comp[blob] = await resp.text()
                         break
-                    elif resp.status == 500:
+                    elif resp.status in {500, 503, 429}:
+                        sleep(0.001)
                         max_out += 1
-                    elif resp.status == 429:
-                        sleep(0.01)
                     else:
                         raise Exception(str(resp.status))
     except (
         aiohttp.client_exceptions.ClientConnectorError,
         aiohttp.client_exceptions.ServerDisconnectedError,
         asyncio.TimeoutError,
+        concurrent.futures._base.CancelledError,
     ) as e:
-        # print(type(e), e, str(count))
-        if count < 5:
-            await cloud_work(blob, user_nlp, comp, count + 1)
+        print(type(e), e, str(count))
+        if count < 3:
+            await cloud_work(blob, inp, comp, count + 1)
     except Exception as e:
         print(type(e), e)
     return
