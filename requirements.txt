@@ -21,10 +21,9 @@ chardet==3.0.4
 charset-normalizer==2.0.8
 click==7.1.1
 cryptography==3.4.4
-cymem==2.0.3
+cymem==2.0.6
 dominate==2.5.1
 dparse==0.5.1
-en-core-web-sm==2.3.1
 Flask==1.1.2
 Flask-Bootstrap==3.3.7.1
 Flask-WTF==0.14.3
@@ -45,7 +44,7 @@ MarkupSafe==1.1.1
 more-itertools==8.5.0
 multidict==4.7.5
 murmurhash==1.0.2
-numpy==1.19.2
+numpy==1.22.2
 outcome==1.0.1
 packaging==20.4
 plac==1.1.3
