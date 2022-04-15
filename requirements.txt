@@ -19,7 +19,7 @@ certifi==2020.4.5.1
 cffi==1.14.0
 chardet==3.0.4
 charset-normalizer==2.0.8
-click==7.1.1
+click==8.1.2
 cryptography==3.4.4
 cymem==2.0.6
 dominate==2.5.1
