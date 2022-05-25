@@ -54,7 +54,7 @@ psutil==5.7.2
 py==1.10.0
 pycparser==2.20
 pydantic==1.8.2
-PyJWT==1.7.1
+PyJWT==2.4.0
 pyparsing==2.4.7
 pytest==6.0.2
 pytz==2019.3
