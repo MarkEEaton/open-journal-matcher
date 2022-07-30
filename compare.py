@@ -2,8 +2,9 @@
 
 import asyncio
 import asks
+import concurrent
 import regex
-import settings202109 as settings
+import settings202201 as settings
 import aiohttp
 import langdetect
 import os
@@ -94,10 +95,9 @@ def index():
         unordered_scores = {}
         inp = form.webabstract.data
         t0 = datetime.now()
-        user_nlp = nlp(inp).to_bytes()
 
         # do the work
-        asyncio.run(parent1(user_nlp, comp))
+        asyncio.run(parent1(inp, comp))
         asyncio.run(parent2(comp, unordered_scores))
 
         # sort the results
@@ -130,15 +130,15 @@ def add_security_headers(resp):
     return resp
 
 
-async def parent1(user_nlp, comp):
+async def parent1(inp, comp):
     """ manage the async calls to GCP """
     await asyncio.gather(
-            *[cloud_work(blob, user_nlp, comp, 0) for blob in settings.bucket_list[:10]]
+            *[cloud_work(blob, inp, comp, 0) for blob in settings.bucket_list]
     )
     return
 
 
-async def cloud_work(blob, user_nlp, comp, count):
+async def cloud_work(blob, inp, comp, count):
     """ interact with google cloud function """
     max_out = 0
     try:
@@ -146,28 +146,30 @@ async def cloud_work(blob, user_nlp, comp, count):
             while max_out < 6:
                 async with session.post(
                     settings.cloud_function,
-                    data = user_nlp,
+                    json = {'inp': inp},
                     headers = {'blob': blob},
                 ) as resp:
+                    if resp.status != 200:
+                        print(resp.status)
                     if max_out >= 5:
                         raise Exception("Max out")
                     if resp.status == 200:
                         comp[blob] = await resp.text()
                         break
-                    elif resp.status == 500:
+                    elif resp.status in {500, 503, 429}:
+                        sleep(0.001)
                         max_out += 1
-                    elif resp.status == 429:
-                        sleep(0.01)
                     else:
                         raise Exception(str(resp.status))
     except (
         aiohttp.client_exceptions.ClientConnectorError,
         aiohttp.client_exceptions.ServerDisconnectedError,
         asyncio.TimeoutError,
+        concurrent.futures._base.CancelledError,
     ) as e:
-        # print(type(e), e, str(count))
-        if count < 5:
-            await cloud_work(blob, user_nlp, comp, count + 1)
+        print(type(e), e, str(count))
+        if count < 3:
+            await cloud_work(blob, inp, comp, count + 1)
     except Exception as e:
         print(type(e), e)
     return

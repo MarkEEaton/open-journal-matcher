@@ -1,33 +1,35 @@
+import json
 import os
 import spacy
-from flask import Response, request
+from flask import request
 from google.cloud import storage
 from spacy.tokens import Doc
-from thinc.api import Config
+from spacy.vocab import Vocab
 
+nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner", "attribute_ruler", "lemmatizer"])
 
 def doaj_trio(request):
     try:
-        user_nlp = request.data
+        encoded_data = request.data
+        string_data = encoded_data.decode()
+        data = json.loads(string_data)
+        user_nlp = nlp(data['inp'])
+
         blob = request.headers.get('blob')
 
         client = storage.Client()
         bucket = client.get_bucket(os.environ['bucket'])
 
-        config_blob = bucket.get_blob(os.environ['config'])
-        config_text = config_blob.download_as_text()
-        config = Config().from_str(config_text)
-
         blob_object = bucket.get_blob(blob)
-        journal_nlp = blob_object.download_as_bytes()
+        blob_bytes = blob_object.download_as_bytes()
+        blob_vocab_object = bucket.get_blob(blob + '-vocab')
+        blob_vocab_bytes = blob_vocab_object.download_as_bytes()
+        journal_nlp = Doc(Vocab()).from_bytes(blob_bytes)
+        journal_nlp.vocab.from_bytes(blob_vocab_bytes)
 
-        lang_cls = spacy.util.get_lang_class(config["nlp"]["lang"])
-        nlp = lang_cls.from_config(config)
-        user_sim = Doc(nlp.vocab).from_bytes(user_nlp)
-        journal_sim = Doc(nlp.vocab).from_bytes(journal_nlp)
-
-        sim = user_sim.similarity(journal_sim)
+        sim = user_nlp.similarity(journal_nlp)
         return str(sim)
 
     except:
         raise
+
