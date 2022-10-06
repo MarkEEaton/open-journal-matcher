@@ -23,7 +23,7 @@ click==8.1.2
 cryptography==3.4.4
 cymem==2.0.6
 dominate==2.5.1
-dparse==0.5.1
+dparse==0.5.2
 Flask==1.1.2
 Flask-Bootstrap==3.3.7.1
 Flask-WTF==0.14.3
