@@ -1,4 +1,4 @@
-## The Open Journal Matcher was taken offline in July 2022.
+## The Open Journal Matcher was taken offline in July 2022. If you're wondering why, you can see [this blog post](https://kingsboroughlibtech.commons.gc.cuny.edu/2022/07/29/the-last-days-of-the-open-journal-matcher/).
 
 # A journal recommender tool built on the Directory of Open Access Journals
 
